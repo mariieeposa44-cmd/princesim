@@ -30,6 +30,17 @@
   z-index:5;
   cursor:pointer;
 }
+/* Only hide the blinking and happy layers, NOT the base body (#sn) */
+.is-confronting #sb, 
+.is-confronting #sh {
+  opacity: 0 !important;
+  animation: none !important;
+}
+
+/* Ensure the specific layers show up */
+#s-angry, #s-frustrated {
+  transition: opacity 0.3s ease;
+}
   .bc2{
   position:relative;
   display:inline-block;
@@ -1117,14 +1128,18 @@ function startConfrontation(){
   G.confrontStep = 0;
 
   document.getElementById('vignette').classList.add('active');
+  
+  // Add this line to trigger the CSS override
+  document.getElementById('sc2').classList.add('is-confronting');
 
   showAngrySprite();
-
   runConfrontationStep();
 }
 function showAngrySprite(){
   document.getElementById('s-angry').style.opacity = "1";
   document.getElementById('s-frustrated').style.opacity = "0";
+  // DO NOT hide 'sn' here, because 'sn' is his body!
+  // The CSS class .is-confronting already hides the 'normal' eyes/mouth.
 }
 
 function showFrustratedSprite(){
@@ -1242,7 +1257,12 @@ function triggerBadEndingImmediate(){
 }
 function endConfrontation(){
   document.getElementById('vignette').classList.remove('active');
+  document.getElementById('sc2').classList.remove('is-confronting'); // Remove override
   G.inConfrontation = false;
+
+  // Reset opacity of confrontation layers
+  document.getElementById('s-angry').style.opacity = "0";
+  document.getElementById('s-frustrated').style.opacity = "0";
 
   showDialogue("...I understand. I will try to do better.", 4000);
 }
@@ -1293,10 +1313,12 @@ function closeSettings(){
   document.getElementById('settings-modal').style.display = 'none';
 }
 function triggerEnding(){
-  const e=document.getElementById('ec');
-  let title,text,cls;
-  if(G.neglect>=8||G.bond<25||(G.corruption>=70&&G.bond<40)){
-       title="Dark Choco takes the sword.";
+  const e = document.getElementById('ec');
+  let title, text, cls;
+
+  // Prioritize the Sword/Corruption first
+  if(G.corruption >= 100 || G.neglect >= 8 || G.bond < 25) {
+       title = "Dark Choco takes the sword.";
     text="On the thirteenth morning, he took the strawberry jam sword. Your son is gone. You were given twelve days — and he walked the same path anyway. Dark Cacao stands alone in the throne room, chest injured. He always knew what he should have been. He never was.";
     cls='end-bad';
   }else if(G.pamper>=10&&G.bond>=80&&G.stress<=20){
@@ -1322,6 +1344,13 @@ function updateUI(){
   document.getElementById('hunger-bar').style.width=G.hunger+'%';
   document.getElementById('hygiene-bar').style.width=G.hygiene+'%';
   document.getElementById('jam-bar').style.width=G.corruption+'%';
+document.getElementById('jam-bar').style.width = G.corruption + '%';
+
+  // Add this check for the instant Bad Ending:
+  if(G.corruption >= 100) {
+    triggerEnding(); 
+    return;
+  }
   // color stress bar warning
   const sb=document.getElementById('stress-bar');
   sb.style.background=G.stress>=70?'#6a0000':'#9e1b32';
