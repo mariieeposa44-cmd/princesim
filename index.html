@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <title>Prince's Caretaker.</title>
+ <link rel="icon" type="image/x-icon" href="young_princeicon.ico">
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#c8c0b8;font-family:'Patrick Hand',cursive;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:10px}
+  #gc{width:980px;max-width:100%;height:610px;background:#fcfcfc;background-image:radial-gradient(#ddd 1px,transparent 0);background-size:38px 38px;border:5px solid #1a1a1a;position:relative;overflow:hidden;box-shadow:12px 12px 0 rgba(0,0,0,.12)}
+  /* time stamp */
+  #ts{position:absolute;top:14px;left:14px;border:3px solid #8ba4d1;background:#e1ecff;padding:4px 14px;border-radius:10px 30px 10px 20px;display:flex;align-items:center;gap:8px;font-size:1.3rem;color:#4a6fa5;z-index:20}
+  #day-disp{position:absolute;top:14px;left:200px;background:#f5e6c8;border:3px solid #c8a870;padding:4px 14px;border-radius:20px;font-size:1.1rem;color:#7a5c2a;z-index:20}
+  /* stats */
+  #sp{position:absolute;top:95px;left:14px;display:flex;flex-direction:column;gap:18px;z-index:20}
+  .sr{display:flex;align-items:center;gap:8px}
+  .si{font-size:1.6rem}
+  .bc{width:160px;height:22px;border:3px solid #1a1a1a;border-radius:15px 50px 15px 40px;background:white;position:relative;overflow:hidden}
+  .bar{height:100%;transition:width .4s ease-out}
+  .stress{background:#9e1b32}.hunger{background:#4ead52}.hygiene{background:#1b8a32}.jam{background:#5e0000;box-shadow:0 0 8px red}
+  .bl{position:absolute;bottom:-17px;left:8px;font-size:.8rem;color:#9e1b32;font-weight:bold}
+  /* prince */
+  #pa{
+  position:absolute;
+  bottom:0;              
+  left:50%;
+  transform:translateX(-50%);
+  text-align:center;
+  z-index:5;
+  cursor:pointer;
+}
+  .bc2{
+  position:relative;
+  display:inline-block;
+  width:1075px;
+  max-width:none;
+}
+  .bc2 img{width:100%;height:auto;display:block}
+  .lyr{position:absolute;top:0;left:0;width:100%}
+  #sn{position:relative;opacity:1;animation:bo 6s steps(1) infinite}
+  #sb{opacity:0;animation:bc 6s steps(1) infinite}
+  #sh{opacity:0;transition:opacity .15s ease;z-index:10}
+  #sa{opacity:0;transition:opacity .15s ease;z-index:11}
+  @keyframes bo{0%,94%{opacity:1}94.1%,97%{opacity:0}97.1%{opacity:1}}
+  @keyframes bc{0%,94%{opacity:0}94.1%,97%{opacity:1}97.1%{opacity:0}}
+  .is-happy #sn,.is-happy #sb{animation-play-state:paused;opacity:0}
+  .is-happy #sh{opacity:1}
+  .is-angry #sn,.is-angry #sb{animation-play-state:paused;opacity:0}
+  .is-angry #sa{opacity:1}
+  /* dialogue box */
+  #db{position:absolute;bottom:180px;;left:50%;transform:translateX(-50%);width:460px;min-height:52px;background:#fffdf5;border:3px solid #1a1a1a;border-radius:18px;padding:10px 18px;font-size:1.05rem;color:#2a1a0a;z-index:30;text-align:center;opacity:0;transition:opacity .3s}
+  #db.show{opacity:1}
+  /* chat bubble event */
+#cb{
+  position:absolute;
+  top:140px;
+  right:150px; 
+  cursor:pointer;
+  z-index:25;
+  display:none;
+  animation:flt 2s infinite ease-in-out;
+}
+  @keyframes flt{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-8px) scale(1.05)}}
+  .cbubble{background:#f5d832;border:3px solid #1a1a1a;border-radius:50%;width:62px;height:62px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;box-shadow:4px 4px 0 #1a1a1a}
+  /* actions */
+  #ap{position:absolute;top:24px;right:24px;display:flex;flex-direction:column;gap:18px;z-index:20}
+  .ai{text-align:center;cursor:pointer;transition:transform .1s}
+  .ai:hover{transform:scale(1.1)}
+  .bf{width:72px;height:72px;border:3px solid #1a1a1a;background:white;border-radius:10px;display:flex;justify-content:center;align-items:center;box-shadow:4px 4px 0 #1a1a1a;font-size:1.8rem}
+  .ai label{display:block;margin-top:4px;font-weight:bold;color:#b22222;text-decoration:underline;cursor:pointer;font-size:.9rem}
+  /* timer */
+  #td{position:absolute;bottom:100px;left:50%;transform:translateX(-50%);font-size:1.1rem;color:#555;display:none;background:#fffbe8;border:2px solid #ccc;padding:6px 16px;border-radius:20px;z-index:30}
+  /* modal overlay */
+  #mo{position:absolute;inset:0;background:rgba(0,0,0,.55);z-index:50;display:none;align-items:center;justify-content:center}
+  #mo.open{display:flex}
+  #mp{background:#fcfcf0;border:4px solid #1a1a1a;border-radius:20px;padding:28px;width:520px;max-width:95%;font-family:'Patrick Hand',cursive;position:relative}
+  #mp h2{font-size:1.4rem;color:#2a1a0a;margin-bottom:12px;border-bottom:2px solid #ddd;padding-bottom:8px}
+  #mp p{font-size:1.05rem;color:#3a2a1a;line-height:1.6;margin-bottom:16px}
+  .opt-btn{display:block;width:100%;text-align:left;padding:10px 14px;margin:6px 0;background:#fff;border:2.5px solid #1a1a1a;border-radius:12px;font-family:'Patrick Hand',cursive;font-size:1rem;cursor:pointer;color:#2a1a0a;transition:background .15s}
+  .opt-btn:hover{background:#f0e8d0}
+  .close-btn{position:absolute;top:12px;right:16px;background:none;border:none;font-size:1.5rem;cursor:pointer;color:#888}
+  /* talk submenu */
+  #tsm{position:absolute;top:24px;right:110px;background:#fffdf5;border:3px solid #1a1a1a;border-radius:14px;padding:12px;z-index:40;display:none;flex-direction:column;gap:8px;width:170px}
+  #tsm.open{display:flex}
+  .tsm-btn{padding:8px 12px;background:white;border:2px solid #1a1a1a;border-radius:10px;cursor:pointer;font-family:'Patrick Hand',cursive;font-size:.95rem;text-align:left}
+  .tsm-btn:hover{background:#f0e8d0}
+  /* gift submenu */
+  #gsm{position:absolute;top:120px;right:110px;background:#fffdf5;border:3px solid #1a1a1a;border-radius:14px;padding:12px;z-index:40;display:none;flex-direction:column;gap:8px;width:170px}
+  #gsm.open{display:flex}
+  /* jam glow */
+  #jr{display:none}
+  /* footer */
+  #fc{position:absolute;bottom:14px;right:14px;display:flex;gap:16px;z-index:20}
+  .fb{cursor:pointer;font-size:1rem;background:#f5f0e0;border:2px solid #bbb;border-radius:10px;padding:6px 12px}
+  /* story banner */
+  #sb2{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(10,5,20,.85);z-index:60;display:none;align-items:center;justify-content:center}
+  #sb2.open{display:flex}
+  #sc{background:#1a0a0a;border:3px solid #8a2020;border-radius:16px;padding:30px;width:560px;color:#f0e0c0;font-family:'Patrick Hand',cursive;text-align:center}
+  #sc h2{font-size:1.6rem;color:#e8c070;margin-bottom:14px}
+  #sc p{font-size:1.1rem;line-height:1.7;margin-bottom:20px}
+  #sc button{padding:10px 28px;background:#8a2020;border:none;border-radius:10px;color:#f0e0c0;font-family:'Patrick Hand',cursive;font-size:1.1rem;cursor:pointer}
+  /* ending screen */
+  #es{position:absolute;inset:0;z-index:70;display:none;align-items:center;justify-content:center}
+  #es.open{display:flex}
+  #ec{padding:36px;width:600px;border-radius:20px;font-family:'Patrick Hand',cursive;text-align:center;border:4px solid}
+  .end-good{background:#0a1a0a;border-color:#3a8a3a;color:#c0f0c0}
+  .end-mid{background:#1a1208;border-color:#8a6a20;color:#f0d890}
+  .end-bad{background:#1a0505;border-color:#8a1a1a;color:#f0a0a0}
+  #ec h1{font-size:2rem;margin-bottom:16px}
+  #ec p{font-size:1.1rem;line-height:1.7;margin-bottom:20px}
+  #ec button{padding:10px 24px;border:2px solid;border-radius:12px;cursor:pointer;font-family:'Patrick Hand',cursive;font-size:1rem;background:transparent}
+#exit-headpat{
+  position:absolute;
+  bottom:200px;
+  right:40px;
+  background:#fffdf5;
+  border:3px solid #1a1a1a;
+  border-radius:12px;
+  padding:6px 10px;
+  font-size:1.2rem;
+  cursor:pointer;
+  z-index:45;
+  display:none;
+  box-shadow:3px 3px 0 #1a1a1a;
+}
+#exit-headpat:hover{
+  background:#f0e8d0;
+}
+#vignette{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:radial-gradient(circle, transparent 55%, rgba(0,0,0,0.75) 100%);
+  z-index:45;
+  opacity:0;
+  transition:opacity .4s;
+}
+#vignette.active{
+  opacity:1;
+}
+</style>
+</head>
+<body>
+<div id="gc">
+  <div id="ts"><span id="ti">☀️</span><span id="cd">MORNING</span></div>
+  <div id="day-disp">Day <span id="dd">1</span> / 12</div>
+<div id="exit-headpat" onclick="exitHeadpat()">✖</div>
+<div id="vignette"></div>
+
+  <div id="sp">
+    <div class="sr"><span class="si">😨</span><div class="bc"><div id="stress-bar" class="bar stress" style="width:20%"></div><span class="bl">stress</span></div></div>
+    <div class="sr"><span class="si">🍖</span><div class="bc"><div id="hunger-bar" class="bar hunger" style="width:80%"></div><span class="bl">hunger</span></div></div>
+    <div class="sr"><span class="si">🧼</span><div class="bc"><div id="hygiene-bar" class="bar hygiene" style="width:100%"></div><span class="bl">hygiene</span></div></div>
+    <div id="jr" class="sr"><span class="si">⚔️</span><div class="bc"><div id="jam-bar" class="bar jam" style="width:0%"></div><span class="bl">???</span></div></div>
+  </div>
+
+  <div id="pa">
+    <div class="bc2" id="sc2" onmousemove="handlePet(event)" onclick="petPrince()">
+      <img id="sn" src="Prince_Normal.png" alt="Prince">
+      <img id="sb" class="lyr" src="Prince_Normal_Blink.png" alt="">
+      <img id="sh" class="lyr" src="Prince_Touch_Happy.png" alt="">
+      <img id="sa" class="lyr" src="Prince_Sad.png" alt="">
+<img id="s-muddy" class="lyr" src="Prince_Muddy.png" style="opacity:0;">
+<img id="s-blood" class="lyr" src="Prince_Bloodied.png" style="opacity:0;">
+<img id="s-muddy-tap" class="lyr" src="Prince_Muddy_Tap.png" style="opacity:0;">
+<img id="s-blood-tap" class="lyr" src="Prince_Bloodied_Tap.png" style="opacity:0;">
+<img id="s-angry" class="lyr" src="Prince_Angry.png" style="opacity:0;">
+<img id="s-frustrated" class="lyr" src="Prince_Frustrated.png" style="opacity:0;">
+    </div>
+  </div>
+
+  <div id="db">Good morning, father.</div>
+<div id="choices" style="
+  position:absolute;
+  bottom:10px;
+  left:50%;
+  transform:translateX(-50%);
+  width:460px;
+  z-index:35;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+"></div>
+  <!-- Chat bubble event -->
+  <div id="cb" onclick="openChatEvent()">
+    <div class="cbubble">❗</div>
+  </div>
+
+  <div id="ap">
+    <div class="ai" onclick="openFeedMenu()">
+      <div class="bf">🍖</div><label>FEED</label>
+    </div>
+    <div class="ai" onclick="toggleTalkMenu()">
+      <div class="bf" id="talk-bf">💬</div><label>TALK</label>
+    </div>
+    <div class="ai" onclick="toggleGiftMenu()">
+      <div class="bf">🎁</div><label>GIFT</label>
+    </div>
+  </div>
+
+  <!-- Talk submenu -->
+  <div id="tsm">
+    <div style="font-weight:bold;font-size:.9rem;color:#555;padding:2px 4px">Order:</div>
+    <button class="tsm-btn" onclick="orderPrince('patrol')">⚔️ Patrol</button>
+    <button class="tsm-btn" onclick="orderPrince('sleep')">😴 Rest</button>
+    <button class="tsm-btn" onclick="orderPrince('delegate')">📜 Delegate</button>
+    <button class="tsm-btn" onclick="orderPrince('wash')">🚿 Wash up</button>
+    <div style="font-weight:bold;font-size:.9rem;color:#555;padding:2px 4px;margin-top:4px">Say:</div>
+    <button class="tsm-btn" onclick="praiseScold('praise')">👑 Praise him</button>
+    <button class="tsm-btn" onclick="praiseScold('scold')">😤 Scold him</button>
+    <button class="tsm-btn" onclick="closeTalkMenu()">✖ Cancel</button>
+  </div>
+
+  <!-- Gift submenu -->
+  <div id="gsm">
+    <div style="font-weight:bold;font-size:.9rem;color:#555;padding:2px 4px">Gift:</div>
+    <button class="tsm-btn" onclick="giveGift('headpat')">🤚 Headpat</button>
+    <button class="tsm-btn" onclick="giveGift('sword')">⚔️ Training Sword</button>
+    <button class="tsm-btn" onclick="giveGift('book')">📖 Strategy Book</button>
+    <button class="tsm-btn" onclick="giveGift('food')">🍰 Cake</button>
+    <button class="tsm-btn" onclick="closeGiftMenu()">✖ Cancel</button>
+  </div>
+
+  <div id="td">The Prince will return in <span id="sec">30</span>s...</div>
+
+  <div id="fc">
+    <div class="fb" onclick="showNotes()">📝 Notes</div>
+    <div class="fb" onclick="openSettings()">⚙️ Settings</div>
+  </div>
+</div>
+
+<!-- Modal (chat events / choices) -->
+<div id="mo">
+  <div id="mp">
+    <button class="close-btn" onclick="closeModal()">✖</button>
+    <h2 id="mh">The Prince wishes to speak.</h2>
+    <p id="mb">...</p>
+    <div id="mopts"></div>
+  </div>
+</div>
+<div id="settings-modal" style="
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,.55);
+  z-index:80;
+  display:none;
+  align-items:center;
+  justify-content:center;
+">
+  <div style="
+    background:#fcfcf0;
+    border:4px solid #1a1a1a;
+    border-radius:20px;
+    padding:24px;
+    width:480px;
+    max-width:90%;
+    font-family:'Patrick Hand',cursive;
+    position:relative;
+  ">
+    <button onclick="closeSettings()" style="
+      position:absolute;
+      top:10px;
+      right:14px;
+      border:none;
+      background:none;
+      font-size:1.4rem;
+      cursor:pointer;
+    ">✖</button>
+
+    <h2 style="margin-bottom:12px;">Settings</h2>
+
+    <p style="font-size:0.95rem; line-height:1.5; color:#444;">
+      <strong>Disclaimer:</strong><br><br>
+      This is a fan-made project. The character Dark Choco Cookie belongs to Devsisters.  
+      I do not own or claim any official rights to the character, story, or original assets.  
+      This project is created for personal and non-commercial use only.
+    </p>
+  </div>
+</div>
+<!-- Story banner -->
+<div id="sb2">
+  <div id="sc">
+    <h2 id="sbt">Day begins...</h2>
+    <p id="sbp">...</p>
+    <button onclick="closeBanner()">Continue</button>
+  </div>
+</div>
+
+<!-- Ending screen -->
+<div id="es">
+  <div id="ec">
+    <h1 id="et">Ending</h1>
+    <p id="ep">...</p>
+    <button onclick="location.reload()">Play Again</button>
+  </div>
+</div>
+
+<script>
+const CYCLES=["MORNING","AFTERNOON","EVENING","NIGHT"];
+const ICONS=["☀️","🌤️","🌙","⭐"];
+let G={
+  day:1,
+  ci:0,
+  stress:20,
+  hunger:80,
+  hygiene:100,
+  corruption:0,
+  bond:50,
+  pamper:0,
+  neglect:0,
+  isBusy:false,
+  awayTimer:null,
+  scoldsToday:0,
+  praisesToday:0,
+  eventShown:false,
+  chatPending:false,
+  condition:"normal", 
+headpatMode:false,
+ignoredCondition: false,   
+autoHandled: false,        
+};
+
+const STORY={
+  1:{title:"Day 1 — A Quiet Morning",text:"Dark Choco wakes before dawn as always. He greets you stiffly — he never learned how to be casual with his father. But his eyes search your face, hoping for something."},
+  3:{title:"Day 3 — Caramel Arrow's Visit",text:"Caramel Arrow passes through the gates. You notice Dark Choco watching her with something almost like admiration. She asks if he could teach him new techniques."},
+  5:{title:"Day 5 — A Restless Night",text:"The castle guards report the Prince did not sleep well. He was seen standing on the battlements alone, looking south. He says nothing when asked about it."},
+  7:{title:"Day 7 — The Sword Whispers",text:"The watchers spoke of the legendary sword on The Bad Lands. Dark Choco claims he is not interested, yet he hesitates on the topic. The ??? meter appears."},
+  9:{title:"Day 9 — Distance Growing",text:"Dark Choco completes every order without complaint. But his answers are shorter. His eyes linger on exits. Something is pulling at him — and only you can feel what direction it pulls."},
+  11:{title:"Day 11 — The Last Chance",text:"Tomorrow is the final day. The Strawberry Jam Sword's pull is at its strongest. How you treated your son over these 11 days will determine what tomorrow brings."},
+  12:{title:"Day 12 — The Turning Point",text:"This is it. Whatever happens today will be remembered in Dark Cacao's history — either as the day a king saved his son, or the day a father failed him."}
+};
+
+const CHAT_EVENTS=[
+  {q:"Father... do you think I am strong enough to lead one day?",opts:[
+    {t:"You are stronger than I was at your age.",r:"pride",bond:12,stress:-8},
+    {t:"Strength alone does not make a king. Study harder.",r:"quiet",bond:2,stress:5},
+    {t:"We will discuss this another time.",r:"withdraw",bond:-8,stress:10,neglect:1}
+  ]},
+  {q:"The watchers spoke of a sword in the Bad Lands...",opts:[
+    {t:"Absolutely not. That sword is sealed for good reason.",r:"firm",bond:0,stress:-5,corruption:-10},
+    {t:"...Perhaps when you are older.",r:"deflect",bond:3,stress:3,corruption:5},
+    {t:"(You say nothing and walk away.)",r:"silence",bond:-12,stress:12,neglect:1,corruption:15}
+  ]},
+  {q:"Father, I heard the soldiers say I am too soft. Is that what you think too?",opts:[
+    {t:"Those soldiers speak out of turn. You are my son.",r:"defend",bond:15,stress:-10},
+    {t:"A good commander earns respect, not softness.",r:"redirect",bond:5,stress:5},
+    {t:"Toughen up, then.",r:"harsh",bond:-10,stress:15,neglect:1}
+  ]},
+  {q:"Can we... eat dinner together tonight? Just once.",opts:[
+    {t:"Of course. I'll have the kitchen prepare something.",r:"accept",bond:18,stress:-15,pamper:1},
+    {t:"I have reports to review. Another time.",r:"decline",bond:-10,stress:10,neglect:1},
+    {t:"Set a place for me. I will try to attend.",r:"uncertain",bond:5,stress:0}
+  ]},
+  {q:"I want to do a personal inspection of the southern villages. May I go?",opts:[
+    {t:"Yes. Take three guards and report back by evening.",r:"allow",bond:8,stress:-5},
+    {t:"Too dangerous. You are not ready.",r:"restrict",bond:-5,stress:8},
+    {t:"Do as you wish.",r:"dismiss",bond:-8,neglect:1}
+  ]},
+  {q:"Father... are you proud of me?",opts:[
+    {t:"Every day. More than you know.",r:"warm",bond:20,stress:-18,pamper:1},
+    {t:"Pride must be earned. Keep working.",r:"curt",bond:-2,stress:8},
+    {t:"(You leave the room without answering.)",r:"absent",bond:-20,stress:20,neglect:2,corruption:10}
+  ]}
+];
+
+let usedEvents=[];
+let htimer=null;
+
+function exitHeadpat(){
+  G.headpatMode = false;
+  document.body.style.cursor = "default";
+  document.getElementById('exit-headpat').style.display = "none";
+
+  headpatCount = 0;
+
+  // clear lingering timers
+  if(headpatTimeout) clearTimeout(headpatTimeout);
+
+  const c = document.getElementById('sc2');
+  c.classList.remove('is-happy','is-angry');
+
+  showDialogue("...Ah—", 2000);
+}
+
+function showDialogue(text,dur=3500){
+  const d=document.getElementById('db');
+  d.innerText=text;
+  d.classList.add('show');
+  if(htimer)clearTimeout(htimer);
+  htimer=setTimeout(()=>d.classList.remove('show'),dur);
+}
+
+const TOUCH_LINES=[
+  "Good morning, father.","Do you require something?","I will do better today.",
+  "I trained harder last night.","...I hope I did not disappoint you.",
+  "Is there an order for me?","Father.","I am ready.",
+  "The castle is secured, father.","...Yes?"
+];
+
+function petPrince(){
+  if(G.isBusy) return;
+
+  // 🩸 BLOODIED STATE
+  if (G.condition === "blood") {
+    G.ignoredCondition = true;
+    showConditionTap();
+
+    const lines = [
+      "...It's nothing, father.",
+      "A minor injury. It does not affect my duty.",
+      "Please do not concern yourself."
+    ];
+
+    showDialogue(lines[Math.floor(Math.random()*lines.length)]);
+    G.stress = Math.min(100, G.stress + 2);
+	G.bond = Math.max(0, G.bond - 1);
+    updateUI();
+    return;
+  }
+
+  // 🟤 MUDDY STATE
+  if (G.condition === "muddy") {
+    G.ignoredCondition = true;
+    showConditionTap();
+
+    const lines = [
+      "Apologies, father. I will clean myself shortly.",
+      "The terrain was difficult today.",
+      "...I will present myself better next time."
+    ];
+
+    showDialogue(lines[Math.floor(Math.random()*lines.length)]);
+    G.stress = Math.max(0, G.stress + 1);
+	G.bond = Math.max(0, G.bond - 1);
+    updateUI();
+    return;
+  }
+
+  // 😊 NORMAL STATE
+  showExpression('happy',2500);
+  showDialogue(TOUCH_LINES[Math.floor(Math.random()*TOUCH_LINES.length)]);
+  G.stress = Math.max(0, G.stress - 3);
+
+  updateUI();
+}
+function showExpression(type,dur){
+  const c=document.getElementById('sc2');
+  c.classList.remove('is-happy','is-angry');
+  if(type==='happy')c.classList.add('is-happy');
+  else if(type==='angry')c.classList.add('is-angry');
+  setTimeout(()=>{
+    c.classList.remove('is-happy','is-angry');
+  },dur||2500);
+}
+
+function openFeedMenu(){
+  if(G.isBusy)return;
+  closeAllMenus();
+  if(G.hunger<=20){showDialogue("I am not hungry, father.");return;}
+  G.hunger=Math.max(0,G.hunger-25);
+  showExpression('happy',2500);
+  showDialogue("Thank you for the meal, father.");
+  updateUI();
+}
+
+function toggleTalkMenu(){
+  if(G.isBusy)return;
+  const m=document.getElementById('tsm');
+  m.classList.toggle('open');
+  document.getElementById('gsm').classList.remove('open');
+}
+function closeTalkMenu(){document.getElementById('tsm').classList.remove('open');}
+function toggleGiftMenu(){
+  if(G.isBusy)return;
+  const m=document.getElementById('gsm');
+  m.classList.toggle('open');
+  document.getElementById('tsm').classList.remove('open');
+}
+function closeGiftMenu(){document.getElementById('gsm').classList.remove('open');}
+function closeAllMenus(){closeTalkMenu();closeGiftMenu();}
+
+function orderPrince(task){
+  if(G.isBusy)return;
+  closeAllMenus();
+  const taskData={
+    patrol:{msg:"Yes, father. I will patrol the eastern border.",ret:["He returns from patrol, dust on his armor.","He comes back with a cut on his cheek — nothing serious.","He returns quietly. Something in his eyes looks distant."],stress:-5,hygiene:-20,hunger:-15},
+    sleep:{msg:"Understood. I will rest.",ret:["He returns looking more rested.","He slept, but woke early again."],stress:-15,hygiene:0,hunger:-5},
+    delegate:{msg:"I will represent the kingdom with honor, father.",ret:["The delegation went smoothly, he reports.","He returns with a sealed letter from the southern province."],stress:-8,hygiene:-5,hunger:-20},
+    wash:{
+  msg: G.autoHandled ? "...I have already done so." : "...Of course.",
+  ret: G.autoHandled 
+    ? ["He is already clean. He avoids your gaze."] 
+    : ["He returns looking cleaner, though still stiff."],
+  stress: G.autoHandled ? 5 : 0,
+  hygiene: 50,
+  hunger: 0,
+}
+  };
+  const td=taskData[task];
+  showDialogue(td.msg,4000);
+  G.isBusy=true;
+  document.getElementById('td').style.display='block';
+  let t=30;
+  document.getElementById('sec').innerText=t;
+  const iv=setInterval(()=>{
+    t--;document.getElementById('sec').innerText=t;
+    if (t <= 0) {
+  clearInterval(iv);
+  G.isBusy = false;
+  document.getElementById('td').style.display = 'none';
+
+  if (task === "patrol") {
+
+    const roll = Math.random();
+
+    if (roll < 0.33) {
+        G.condition = "muddy";
+        updateConditionSprite();
+
+        showDialogue("He returns covered in mud. \"The terrain was rough, father.\"");
+        G.hygiene = Math.max(0, G.hygiene - 25);
+    }
+
+    else if (roll < 0.66) {
+        G.condition = "blood";
+        updateConditionSprite();
+
+        showDialogue("There’s blood on his sleeve. \"It’s nothing.\"");
+        G.stress = Math.min(100, G.stress + 10);
+        G.hygiene = Math.max(0, G.hygiene - 45);
+    }
+
+    else {
+        const ret = td.ret[Math.floor(Math.random()*td.ret.length)];
+        showDialogue(ret,4000);
+    }
+
+  } else {
+    const ret = td.ret[Math.floor(Math.random()*td.ret.length)];
+    showDialogue(ret,4000);
+  }
+// 🔥 AUTO-HANDLE CONSEQUENCE
+if (task === "sleep" && G.ignoredCondition && (G.condition === "muddy" || G.condition === "blood")) {
+
+  G.autoHandled = true;
+  G.ignoredCondition = false;
+
+  setTimeout(()=>{
+    showDialogue("...I have already taken care of it myself, father.", 4000);
+
+    // emotional consequence
+    G.bond = Math.max(0, G.bond - 12);
+    G.stress = Math.min(100, G.stress + 10);
+
+    // he cleans himself automatically
+    G.condition = "normal";
+    updateConditionSprite();
+
+    updateUI();
+  }, 1200);
+}
+
+  G.stress = Math.max(0, Math.min(100, G.stress + td.stress));
+  G.hygiene = Math.max(0, Math.min(100, G.hygiene + td.hygiene));
+  G.hunger = Math.max(0, Math.min(100, G.hunger + td.hunger));
+
+  advanceTime(2);}
+},1000); 
+}
+
+function praiseScold(type){
+  closeAllMenus();
+  if(type==='praise'){
+    G.praisesToday++;G.pamper++;G.bond=Math.min(100,G.bond+8);G.stress=Math.max(0,G.stress-10);
+    if(G.praisesToday>=3){
+      showExpression('happy',2000);
+      showDialogue("...Thank you, father. Though praise sits strangely on me.",3500);
+    }else{showExpression('happy',2000);showDialogue("...I will not disappoint you, father.",3000);}
+  }else{
+    G.scoldsToday++;G.neglect++;G.bond=Math.max(0,G.bond-10);G.stress=Math.min(100,G.stress+15);
+    showExpression('angry',2500);
+    const lines=["Yes, father.","I understand.","...I am sorry.","I will correct it."];
+    showDialogue(lines[Math.floor(Math.random()*lines.length)],3000);
+  }
+  updateUI();
+}
+
+function giveGift(type){
+  closeAllMenus();
+
+if(type === 'headpat'){
+  G.headpatMode = true;
+  document.body.style.cursor = "grab";
+
+  document.getElementById('exit-headpat').style.display = "block"; // 👈 ADD THIS
+
+  showDialogue("...F-father?", 2500);
+  return; 
+}
+
+  // ⬇️ KEEP EVERYTHING BELOW AS IS
+  const gifts={
+    headpat:{msg:"...F-father?",stress:-12,bond:10,pamper:1},
+    sword:{msg:"A training sword? I will use it well.",stress:-8,bond:8,pamper:1},
+    book:{msg:"Thank you. I will study it tonight.",stress:-5,bond:6},
+    food:{msg:"Cake? ...Thank you.",stress:-10,bond:8,pamper:1}
+  };
+
+  const g=gifts[type];
+
+  showExpression('happy',2500);
+  showDialogue(g.msg,3000);
+
+  G.stress=Math.max(0,G.stress+g.stress);
+  G.bond=Math.min(100,G.bond+g.bond);
+
+  if(g.pamper)G.pamper++;
+
+  updateUI();
+}
+let lastPetTime = 0;
+let headpatTimeout = null;
+function handlePet(e){
+  if(!G.headpatMode || G.isBusy) return;
+
+  const prince = document.getElementById('pa');
+  const rect = prince.getBoundingClientRect();
+
+  // 🧠 define "head zone" (top center area)
+  const headTop = rect.top;
+  const headBottom = rect.top + rect.height * 0.35;
+  const headLeft = rect.left + rect.width * 0.25;
+  const headRight = rect.left + rect.width * 0.75;
+
+  const x = e.clientX;
+  const y = e.clientY;
+
+  const isOnHead = (
+    x >= headLeft &&
+    x <= headRight &&
+    y >= headTop &&
+    y <= headBottom
+  );
+
+  if(!isOnHead){
+  document.body.style.cursor = "default";
+  return;
+} else {
+  document.body.style.cursor = "grabbing";
+}
+
+  const now = Date.now();
+  if(now - lastPetTime < 250) return;
+  lastPetTime = now;
+// clear previous "end" timer
+if(headpatTimeout) clearTimeout(headpatTimeout);
+
+const c = document.getElementById('sc2');
+c.classList.remove('is-angry');
+c.classList.add('is-happy');
+
+// after player stops moving → delay before removing
+headpatTimeout = setTimeout(()=>{
+  const c = document.getElementById('sc2');
+  c.classList.remove('is-happy');
+}, 500); // 👈 half a second linger
+
+  // 👇 dialogue handled below
+  triggerHeadpatDialogue();
+
+  G.stress = Math.max(0, G.stress - 2);
+  G.bond = Math.min(100, G.bond + 1);
+
+  updateUI();
+}
+let headpatCount = 0;
+
+function triggerHeadpatDialogue(){
+  headpatCount++;
+
+  let lines = [];
+
+  // 🧊 LOW BOND (awkward, unsure)
+  if(G.bond < 40){
+    lines = [
+      "...Father?",
+      "You do not have to do this.",
+      "...I am not a child."
+    ];
+  }
+
+  // 🌱 MID BOND (softening)
+  else if(G.bond < 70){
+    lines = [
+      "...This is... nice.",
+      "You rarely do this.",
+      "...I will remember this."
+    ];
+  }
+
+  // ☀️ HIGH BOND (emotionally open)
+  else{
+    lines = [
+      "...Stay a little longer.",
+      "I used to think you would never...",
+      "...Thank you, father."
+    ];
+  }
+
+if(headpatCount > 8){
+  // switch to sad sprite
+  const c = document.getElementById('sc2');
+  c.classList.remove('is-happy');
+  c.classList.add('is-angry'); // you're using this for sad sprite layer
+
+  lines = [
+    "...Father, that is enough.",
+    "You will ruin your image like this.",
+    "...People will see."
+  ];
+}
+setTimeout(()=>{
+  const c = document.getElementById('sc2');
+  c.classList.remove('is-angry');
+}, 1200);
+
+  // 🫠 VERY HIGH COUNT (quiet acceptance)
+  if(headpatCount > 14){
+    lines = [
+      "...",
+      "(He leans slightly into your hand.)"
+    ];
+  }
+
+  showDialogue(lines[Math.floor(Math.random()*lines.length)], 2200);
+}
+// Chat events
+let currentEvent=null;
+function scheduleChatEvent(){
+  if(G.chatPending || G.day > 12) return;
+
+  // longer, calmer pacing
+  const delay = 12000 + Math.random()*12000; // 12–24 seconds
+
+  G.chatPending = true;
+
+  setTimeout(()=>{
+    // wait until player is free (but don’t spam check)
+    const check = setInterval(()=>{
+      if(!G.isBusy){
+        document.getElementById('cb').style.display='block';
+        clearInterval(check);
+      }
+    }, 1500);
+  }, delay);
+}
+
+function openChatEvent(){
+  document.getElementById('cb').style.display='none';
+  G.chatPending=false;
+
+  // reset pool if needed
+  if (usedEvents.length >= CHAT_EVENTS.length) {
+    usedEvents = [];
+  }
+
+  let pool = CHAT_EVENTS.map((e,i)=>({e,i}))
+    .filter(x=>!usedEvents.includes(x.i));
+
+  const pick = pool[Math.floor(Math.random()*pool.length)];
+  usedEvents.push(pick.i);
+
+  currentEvent = pick.e;
+
+  // ✅ SHOW QUESTION IN DIALOGUE BOX
+  const d = document.getElementById('db');
+d.innerText = pick.e.q;
+d.classList.add('show');
+
+// stop any previous timers from hiding it
+if (htimer) clearTimeout(htimer);
+
+  // ✅ SHOW OPTIONS
+  const container = document.getElementById('choices');
+  container.innerHTML = '';
+
+  pick.e.opts.forEach(opt=>{
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.innerText = opt.t;
+    btn.onclick = ()=>resolveChoice(opt);
+    container.appendChild(btn);
+  });
+}
+
+function resolveChoice(opt){
+  document.getElementById('choices').innerHTML = '';
+
+  showDialogue(responses[opt.r]||"...",4000);
+
+  if(opt.bond)G.bond=Math.max(0,Math.min(100,G.bond+opt.bond));
+  if(opt.stress)G.stress=Math.max(0,Math.min(100,G.stress+opt.stress));
+  if(opt.corruption)G.corruption=Math.max(0,Math.min(100,G.corruption+opt.corruption));
+  if(opt.pamper)G.pamper++;
+  if(opt.neglect)G.neglect+=opt.neglect||1;
+
+  if(opt.r==='warm'||opt.r==='defend'||opt.r==='accept')showExpression('happy',3000);
+  if(opt.r==='absent'||opt.r==='silence'||opt.r==='harsh')showExpression('angry',3000);
+
+  scheduleChatEvent();
+  updateUI();
+}
+function updateConditionSprite(){
+    const muddy = document.getElementById('s-muddy');
+    const blood = document.getElementById('s-blood');
+
+    if (!muddy || !blood) return;
+
+    muddy.style.opacity = "0";
+    blood.style.opacity = "0";
+
+    if (G.condition === "muddy") muddy.style.opacity = "1";
+    if (G.condition === "blood") blood.style.opacity = "1";
+}
+function showConditionTap(){
+    const muddyTap = document.getElementById('s-muddy-tap');
+    const bloodTap = document.getElementById('s-blood-tap');
+
+    if (!muddyTap || !bloodTap) return;
+
+    // reset
+    muddyTap.style.opacity = "0";
+    bloodTap.style.opacity = "0";
+
+    if (G.condition === "muddy") {
+        muddyTap.style.opacity = "1";
+    }
+
+    if (G.condition === "blood") {
+        bloodTap.style.opacity = "1";
+    }
+
+    // auto return to normal condition sprite
+    setTimeout(()=>{
+        muddyTap.style.opacity = "0";
+        bloodTap.style.opacity = "0";
+    }, 2500);
+}
+const responses={
+  pride:"...Thank you, father. I will not waste your faith in me.",
+  quiet:"I understand. I will train harder.",
+  withdraw:"Of course, father. Another time.",
+  firm:"Yes, father. I understand.",
+  deflect:"...I see.",
+  silence:"...",
+  defend:"...Thank you, father.",
+  redirect:"I will keep that in mind.",
+  harsh:"...Yes, father.",
+  accept:"Really? I... Thank you.",
+  decline:"Of course. I understand.",
+  uncertain:"I will prepare a place for you.",
+  allow:"Yes, father. I will be careful.",
+  restrict:"...Understood.",
+  dismiss:"Yes, father.",
+  warm:"...I. Thank you.",
+  curt:"I understand.",
+  absent:"..."
+};
+
+function closeModal(){document.getElementById('mo').classList.remove('open');}
+
+function advanceTime(amt){
+  G.ci+=amt;
+  if(G.ci>=4){G.ci=G.ci%4;G.day++;}
+  // natural stat drift
+  G.hunger=Math.min(100,G.hunger+8);
+  G.stress=Math.min(100,G.stress+5);
+  G.hygiene=Math.max(0,G.hygiene-8);
+  if(G.day>=7)G.corruption=Math.min(100,G.corruption+3);
+  if(G.day>12){triggerEnding();return;}
+  if(STORY[G.day]&&G.ci===0)showBanner(STORY[G.day].title,STORY[G.day].text);
+  if(G.day>=7)document.getElementById('jr').style.display='flex';
+  if(G.ci===0)scheduleLeave();
+  scheduleChatEvent();
+  updateUI();
+  checkBadState();
+checkConfrontationTrigger();
+}
+
+function checkConfrontationTrigger(){
+  if(
+    !G.confrontationTriggered &&
+    G.day >= 5 &&
+    G.neglect >= 8
+  ){
+    startConfrontation();
+  }
+}
+function startConfrontation(){
+  G.confrontationTriggered = true;
+  G.inConfrontation = true;
+  G.confrontStep = 0;
+
+  document.getElementById('vignette').classList.add('active');
+
+  showAngrySprite();
+
+  runConfrontationStep();
+}
+function showAngrySprite(){
+  document.getElementById('s-angry').style.opacity = "1";
+  document.getElementById('s-frustrated').style.opacity = "0";
+}
+
+function showFrustratedSprite(){
+  document.getElementById('s-angry').style.opacity = "0";
+  document.getElementById('s-frustrated').style.opacity = "1";
+}
+function runConfrontationStep(){
+  const steps = [
+
+    {
+      q:"...Why now?",
+      opts:[
+        {t:"Because you are losing control.", effect:"bad"},
+        {t:"Because I should have spoken sooner.", effect:"good"},
+        {t:"This is not the time for emotions.", effect:"bad"}
+      ]
+    },
+
+    {
+      q:"You were never there. Not when I needed you.",
+      opts:[
+        {t:"You are a prince. You must endure.", effect:"bad"},
+        {t:"I thought strength meant distance.", effect:"good"},
+        {t:"You are exaggerating.", effect:"bad"}
+      ]
+    },
+
+    {
+      q:"Tell me honestly... was I ever enough for you?",
+      opts:[
+        {t:"No. You needed to be better.", effect:"bad"},
+        {t:"You were always enough.", effect:"good"},
+        {t:"That is not the point.", effect:"bad"}
+      ]
+    }
+
+  ];
+
+  if(G.confrontStep >= steps.length){
+    endConfrontation();
+    return;
+  }
+
+  const step = steps[G.confrontStep];
+
+  document.getElementById('db').innerText = step.q;
+  document.getElementById('db').classList.add('show');
+
+  const container = document.getElementById('choices');
+  container.innerHTML = '';
+
+  step.opts.forEach(opt=>{
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.innerText = opt.t;
+
+    btn.onclick = ()=>{
+      handleConfrontationChoice(opt.effect);
+    };
+
+    container.appendChild(btn);
+  });
+}
+function handleConfrontationChoice(effect){
+
+  document.getElementById('choices').innerHTML = '';
+
+  if(effect === "bad"){
+    G.bond -= 15;
+    G.stress += 10;
+  }else{
+    G.bond += 10;
+    G.stress -= 8;
+  }
+
+  // sprite shift (emotional escalation)
+  if(G.confrontStep === 1){
+    showFrustratedSprite();
+  }
+
+  // BAD END IMMEDIATE TRIGGER
+  if(G.bond <= 20 || G.neglect >= 10){
+    triggerBadEndingImmediate();
+    return;
+  }
+
+  G.confrontStep++;
+  setTimeout(runConfrontationStep, 1200);
+
+  updateUI();
+}
+function triggerBadEndingImmediate(){
+  document.getElementById('vignette').classList.remove('active');
+  G.inConfrontation = false;
+
+  document.getElementById('et').innerText = "He turns away.";
+  document.getElementById('ep').innerText =
+  "He stops listening. Not because he cannot hear you — but because he has learned there is nothing to hear. The sword will find him soon enough.";
+
+  document.getElementById('ec').className = "end-bad";
+  document.getElementById('es').classList.add('open');
+}
+function endConfrontation(){
+  document.getElementById('vignette').classList.remove('active');
+  G.inConfrontation = false;
+
+  showDialogue("...I understand. I will try to do better.", 4000);
+}
+function checkBadState(){
+  if(G.stress>=90){showDialogue("Father... I am struggling.",4000);}
+  if(G.hunger>=95){showDialogue("...I am hungry.",3000);}
+  if(G.corruption>=80&&G.day>=7){showDialogue("...I will seek greater strength up at Bad Lands. I can feel it.",4500);}
+}
+
+function scheduleLeave(){
+  if(Math.random()>0.65||G.isBusy)return;
+  setTimeout(()=>{
+    if(!G.isBusy){
+      const leaves=["The Prince has gone to mentor Caramel Arrow.","He has left for a personal village inspection.","He slipped out early for morning training alone."];
+      showDialogue(leaves[Math.floor(Math.random()*leaves.length)],5000);
+      G.hygiene=Math.max(0,G.hygiene-10);
+      G.hunger=Math.min(100,G.hunger+10);
+      updateUI();
+    }
+  },12000);
+}
+
+function showBanner(title,text){
+  document.getElementById('sbt').innerText=title;
+  document.getElementById('sbp').innerText=text;
+  document.getElementById('sb2').classList.add('open');
+}
+function closeBanner(){
+  document.getElementById('sb2').classList.remove('open');
+  scheduleChatEvent();
+}
+
+function showNotes(){
+  const lines=[
+    `Bond: ${Math.round(G.bond)}/100`,
+    `Times praised: ${G.pamper}`,
+    `Times neglected: ${G.neglect}`,
+    `Stress: ${Math.round(G.stress)}%`,
+    G.corruption>0?`??? meter: ${Math.round(G.corruption)}%`:''
+  ].filter(Boolean).join('\n');
+  alert("Your journal:\n\n"+lines);
+}
+function openSettings(){
+  document.getElementById('settings-modal').style.display = 'flex';
+}
+
+function closeSettings(){
+  document.getElementById('settings-modal').style.display = 'none';
+}
+function triggerEnding(){
+  const e=document.getElementById('ec');
+  let title,text,cls;
+  if(G.neglect>=8||G.bond<25||(G.corruption>=70&&G.bond<40)){
+       title="Dark Choco takes the sword.";
+    text="On the thirteenth morning, he took the strawberry jam sword. Your son is gone. You were given twelve days — and he walked the same path anyway. Dark Cacao stands alone in the throne room, chest injured. He always knew what he should have been. He never was.";
+    cls='end-bad';
+  }else if(G.pamper>=10&&G.bond>=80&&G.stress<=20){
+    title="A Son Too Sheltered.";
+    text="Dark Choco remains. But when trials come — and they always do — he is unprepared. A king who was given only warmth and no edge. He loves you, father. But the kingdom will challenge what love alone cannot build. A bittersweet ending — you were kind, but forgot to be a king.";
+    cls='end-mid';
+  }else{
+    title="What it means to be a Dad.";
+    text="On the thirteenth morning, Dark Choco stands at your side as he always should have. He is not soft. He is not broken. He is a prince who was seen — truly seen — by his father. Dark Cacao bent, just enough, without breaking. And that was everything.";
+    cls='end-good';
+  }
+  document.getElementById('et').innerText=title;
+  document.getElementById('ep').innerText=text;
+  e.className=cls;
+  document.getElementById('es').classList.add('open');
+}
+
+function updateUI(){
+  document.getElementById('cd').innerText=CYCLES[G.ci];
+  document.getElementById('ti').innerText=ICONS[G.ci];
+  document.getElementById('dd').innerText=G.day;
+  document.getElementById('stress-bar').style.width=G.stress+'%';
+  document.getElementById('hunger-bar').style.width=G.hunger+'%';
+  document.getElementById('hygiene-bar').style.width=G.hygiene+'%';
+  document.getElementById('jam-bar').style.width=G.corruption+'%';
+  // color stress bar warning
+  const sb=document.getElementById('stress-bar');
+  sb.style.background=G.stress>=70?'#6a0000':'#9e1b32';
+  // hunger bar
+  const hb=document.getElementById('hunger-bar');
+  hb.style.background=G.hunger>=80?'#c06010':'#4ead52';
+}
+
+// Initial story
+showBanner(STORY[1].title,STORY[1].text);
+updateUI();
+</script>
+</body>
+</html>
