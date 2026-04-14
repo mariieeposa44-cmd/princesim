@@ -512,34 +512,43 @@ function orderPrince(task){
 
   if (task === "patrol") {
 
-    const roll = Math.random();
+  const roll = Math.random();
 
-    if (roll < 0.33) {
-        G.condition = "muddy";
-        updateConditionSprite();
+  if (roll < 0.33) {
+    G.condition = "muddy";
+    updateConditionSprite();
 
-        showDialogue("He returns covered in mud. \"The terrain was rough, father.\"");
-        G.hygiene = Math.max(0, G.hygiene - 25);
-    }
+    showDialogue("He returns covered in mud. \"The terrain was rough, father.\"");
+    G.hygiene = Math.max(0, G.hygiene - 25);
+  }
 
-    else if (roll < 0.66) {
-        G.condition = "blood";
-        updateConditionSprite();
+  else if (roll < 0.66) {
+    G.condition = "blood";
+    updateConditionSprite();
 
-        showDialogue("There’s blood on his sleeve. \"It’s nothing.\"");
-        G.stress = Math.min(100, G.stress + 10);
-        G.hygiene = Math.max(0, G.hygiene - 45);
-    }
+    showDialogue("There’s blood on his sleeve. \"It’s nothing.\"");
+    G.stress = Math.min(100, G.stress + 10);
+    G.hygiene = Math.max(0, G.hygiene - 45);
+  }
 
-    else {
-        const ret = td.ret[Math.floor(Math.random()*td.ret.length)];
-        showDialogue(ret,4000);
-    }
-
-  } else {
+  else {
     const ret = td.ret[Math.floor(Math.random()*td.ret.length)];
     showDialogue(ret,4000);
   }
+
+} else {
+
+  const ret = td.ret[Math.floor(Math.random()*td.ret.length)];
+  showDialogue(ret,4000);
+
+  // ✅ FIX: washing actually cleans him
+  if (task === "wash") {
+    G.condition = "normal";
+    G.autoHandled = false;
+    G.ignoredCondition = false;
+    updateConditionSprite();
+  }
+}
 // 🔥 AUTO-HANDLE CONSEQUENCE
 if (task === "sleep" && G.ignoredCondition && (G.condition === "muddy" || G.condition === "blood")) {
 
