@@ -566,7 +566,7 @@ function orderPrince(task){
 G.awayState = task;
 updateAwayVisual();
   document.getElementById('td').style.display='block';
-  let t = Math.floor(20 + Math.random() * 5); 
+  let t = Math.floor(20 + Math.random() * 15); 
   document.getElementById('sec').innerText=t;
   const iv=setInterval(()=>{// trigger mid-action event
 if (t === 20 || t === 10) {
@@ -661,7 +661,7 @@ updateAwayVisual();
 },1000); 
 }
 function triggerAwayThought(){
-  if(!G.awayState || G.isBusy) return;
+  if(!G.awayState) return;
 
   const thoughts = {
     patrol: [
@@ -687,10 +687,11 @@ function triggerAwayThought(){
   showDialogue(pool[Math.floor(Math.random()*pool.length)], 2500);
 }
 setInterval(()=>{
-  if(Math.random() < 0.25){
+  if(G.isBusy || !G.awayState) return;
+  if(Math.random() < 0.35){
     triggerAwayThought();
   }
-}, 9000);
+}, 6000);
 function updateEmotionalState(){
   const c = document.getElementById('sc2');
 
