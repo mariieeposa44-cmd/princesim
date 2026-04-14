@@ -49,7 +49,7 @@
   .is-angry #sn,.is-angry #sb{animation-play-state:paused;opacity:0}
   .is-angry #sa{opacity:1}
   /* dialogue box */
-  #db{position:absolute;bottom:180px;;left:50%;transform:translateX(-50%);width:460px;min-height:52px;background:#fffdf5;border:3px solid #1a1a1a;border-radius:18px;padding:10px 18px;font-size:1.05rem;color:#2a1a0a;z-index:30;text-align:center;opacity:0;transition:opacity .3s}
+  #db{position:absolute;bottom: 220px;left:50%;transform:translateX(-50%);width:460px;min-height:52px;background:#fffdf5;border:3px solid #1a1a1a;border-radius:18px;padding:10px 18px;font-size:1.05rem;color:#2a1a0a;z-index:40;;text-align:center;opacity:0;transition:opacity .3s}
   #db.show{opacity:1}
   /* chat bubble event */
 #cb{
@@ -139,6 +139,15 @@
 #vignette.active{
   opacity:1;
 }
+.is-resting #sn,
+.is-resting #sb {
+  animation: blinkRest 4s infinite;
+}
+
+@keyframes blinkRest {
+  0%, 92%, 100% { opacity: 1; }
+  93%, 95% { opacity: 0; }
+}
 </style>
 </head>
 <body>
@@ -198,7 +207,7 @@
       <div class="bf">🎁</div><label>GIFT</label>
     </div>
   </div>
-
+<button onclick="interruptAction()" id="interrupt-btn" style="display:none;">Call him back</button>
   <!-- Talk submenu -->
   <div id="tsm">
     <div style="font-weight:bold;font-size:.9rem;color:#555;padding:2px 4px">Order:</div>
@@ -318,12 +327,14 @@ let G={
   condition:"normal", 
 headpatMode:false,
 ignoredCondition: false,   
-autoHandled: false,        
+autoHandled: false, 
+awayState: null, // "patrol" | "delegate" | "sleep"
+awayOpacity: 1       
 };
 
 const STORY={
   1:{title:"Day 1 — A Quiet Morning",text:"Dark Choco wakes before dawn as always. He greets you stiffly — he never learned how to be casual with his father. But his eyes search your face, hoping for something."},
-  3:{title:"Day 3 — Caramel Arrow's Visit",text:"Caramel Arrow passes through the gates. You notice Dark Choco watching her with something almost like admiration. She asks if he could teach him new techniques."},
+  3:{title:"Day 3 — Caramel Arrow's Visit",text:"Caramel Arrow passes through the gates. You notice Dark Choco watching her with something almost like admiration. She asks if he could teach her some new techniques."},
   5:{title:"Day 5 — A Restless Night",text:"The castle guards report the Prince did not sleep well. He was seen standing on the battlements alone, looking south. He says nothing when asked about it."},
   7:{title:"Day 7 — The Sword Whispers",text:"The watchers spoke of the legendary sword on The Bad Lands. Dark Choco claims he is not interested, yet he hesitates on the topic. The ??? meter appears."},
   9:{title:"Day 9 — Distance Growing",text:"Dark Choco completes every order without complaint. But his answers are shorter. His eyes linger on exits. Something is pulling at him — and only you can feel what direction it pulls."},
@@ -363,7 +374,17 @@ const CHAT_EVENTS=[
     {t:"(You leave the room without answering.)",r:"absent",bond:-20,stress:20,neglect:2,corruption:10}
   ]}
 ];
+function updateAwayVisual(){
+  const c = document.getElementById('sc2');
 
+  if(G.awayState){
+    c.style.opacity = "0.35";   // visually "not present"
+    c.style.filter = "grayscale(0.4)";
+  } else {
+    c.style.opacity = "1";
+    c.style.filter = "none";
+  }
+}
 let usedEvents=[];
 let htimer=null;
 function saveGame(){
@@ -409,12 +430,16 @@ function exitHeadpat(){
   showDialogue("...Ah—", 2000);
 }
 
-function showDialogue(text,dur=3500){
-  const d=document.getElementById('db');
-  d.innerText=text;
+function showDialogue(text, dur=3500, persistent=false){
+  const d = document.getElementById('db');
+  d.innerText = text;
   d.classList.add('show');
-  if(htimer)clearTimeout(htimer);
-  htimer=setTimeout(()=>d.classList.remove('show'),dur);
+
+  if(htimer) clearTimeout(htimer);
+
+  if(!persistent){
+    htimer = setTimeout(()=> d.classList.remove('show'), dur);
+  }
 }
 
 const TOUCH_LINES=[
@@ -531,17 +556,24 @@ function orderPrince(task){
     ? ["He is already clean. He avoids your gaze."] 
     : ["He returns looking cleaner, though still stiff."],
   stress: G.autoHandled ? 5 : 0,
-  hygiene: 50,
+  hygiene: 100,
   hunger: 0,
 }
   };
   const td=taskData[task];
   showDialogue(td.msg,4000);
   G.isBusy=true;
+G.awayState = task;
+updateAwayVisual();
   document.getElementById('td').style.display='block';
-  let t=30;
+  let t = Math.floor(20 + Math.random() * 5); 
   document.getElementById('sec').innerText=t;
-  const iv=setInterval(()=>{
+  const iv=setInterval(()=>{// trigger mid-action event
+if (t === 20 || t === 10) {
+  if (Math.random() < 0.5) {
+    triggerMidActionEvent(task);
+  }
+}
     t--;document.getElementById('sec').innerText=t;
     if (t <= 0) {
   clearInterval(iv);
@@ -573,6 +605,12 @@ function orderPrince(task){
     const ret = td.ret[Math.floor(Math.random()*td.ret.length)];
     showDialogue(ret,4000);
   }
+if(G.bond > 70){
+  showDialogue("He reports in detail, almost eager for your approval.");
+}
+else if(G.neglect > 7){
+  showDialogue("He gives a short report. No eye contact.");
+}
 
 } else {
 
@@ -617,10 +655,42 @@ if (task === "sleep" && G.ignoredCondition && (G.condition === "muddy" || G.cond
   G.stress = Math.max(0, Math.min(100, G.stress + td.stress));
   G.hygiene = Math.max(0, Math.min(100, G.hygiene + td.hygiene));
   G.hunger = Math.max(0, Math.min(100, G.hunger + td.hunger));
-
+G.awayState = null;
+updateAwayVisual();
   advanceTime(2);}
 },1000); 
 }
+function triggerAwayThought(){
+  if(!G.awayState || G.isBusy) return;
+
+  const thoughts = {
+    patrol: [
+      "...The wind is harsh today.",
+      "I should not hesitate next time.",
+      "Father expects results."
+    ],
+    delegate: [
+      "...I hope I represented the kingdom well.",
+      "Did I speak too formally again?",
+      "They were watching closely."
+    ],
+    sleep: [
+      "...I should have trained more.",
+      "Tomorrow will be difficult.",
+      "Father might call for me."
+    ]
+  };
+
+  const pool = thoughts[G.awayState];
+  if(!pool) return;
+
+  showDialogue(pool[Math.floor(Math.random()*pool.length)], 2500);
+}
+setInterval(()=>{
+  if(Math.random() < 0.25){
+    triggerAwayThought();
+  }
+}, 9000);
 function updateEmotionalState(){
   const c = document.getElementById('sc2');
 
@@ -653,7 +723,72 @@ function praiseScold(type){
   }
   updateUI();
 }
+setInterval(()=>{
+  if(G.isBusy) return;
 
+  if(Math.random() < 0.2){
+    const idleLines = [
+      "...He adjusts his grip on the sword.",
+      "He glances at you briefly.",
+      "He seems lost in thought."
+    ];
+    showDialogue(idleLines[Math.floor(Math.random()*idleLines.length)], 2000);
+  }
+}, 8000);
+function triggerMidActionEvent(task){
+  if(G.isBusy === false) return;
+
+  const events = {
+    patrol: [
+      {
+        text: "He encounters hostile scouts. What should he do?",
+        choices: [
+          {t:"Engage them", stress:10, bond:2},
+          {t:"Observe quietly", stress:-2, bond:1},
+          {t:"Retreat", stress:-5, bond:-2}
+        ]
+      },
+      {
+        text: "A villager asks for help mid-patrol.",
+        choices: [
+          {t:"Help them", bond:5, stress:2},
+          {t:"Stay focused on mission", bond:-2, stress:-2}
+        ]
+      }
+    ]
+  };
+
+  const pool = events[task];
+  if(!pool) return;
+
+  const e = pool[Math.floor(Math.random()*pool.length)];
+
+  G.isBusy = false; // temporarily pause action
+
+  const container = document.getElementById('choices');
+  container.innerHTML = '';
+
+showDialogue(e.text, 0, true);
+
+  e.choices.forEach(choice=>{
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.innerText = choice.t;
+
+btn.onclick = ()=>{
+  if(choice.stress) G.stress += choice.stress;
+  if(choice.bond) G.bond += choice.bond;
+
+  container.innerHTML = '';
+
+  // 👇 IMPORTANT: allow interaction again properly
+  G.isBusy = false;
+
+  updateUI();
+};
+    container.appendChild(btn);
+  });
+}
 function giveGift(type){
   closeAllMenus();
 
@@ -843,8 +978,7 @@ function openChatEvent(){
 
   // ✅ SHOW QUESTION IN DIALOGUE BOX
   const d = document.getElementById('db');
-d.innerText = pick.e.q;
-d.classList.add('show');
+showDialogue(pick.e.q, 0, true);
 
 // stop any previous timers from hiding it
 if (htimer) clearTimeout(htimer);
@@ -951,6 +1085,9 @@ function advanceTime(amt){
   if(G.day>=7)document.getElementById('jr').style.display='flex';
   if(G.ci===0)scheduleLeave();
   scheduleChatEvent();
+if(G.awayState){
+  G.stress += 2; // mild isolation pressure
+}
   updateUI();
   checkBadState();
 checkConfrontationTrigger();
@@ -1041,6 +1178,19 @@ function runConfrontationStep(){
 
     container.appendChild(btn);
   });
+}
+function interruptAction(){
+  if(!G.isBusy) return;
+
+  G.isBusy = false;
+  document.getElementById('td').style.display = 'none';
+
+  showDialogue("He returns early. \"Did you call for me, father?\"");
+
+  G.stress += 5;
+  G.bond -= 2;
+
+  updateUI();
 }
 function handleConfrontationChoice(effect){
 
@@ -1171,6 +1321,7 @@ function updateUI(){
   hb.style.background=G.hunger>=80?'#c06010':'#4ead52';
 updateEmotionalState();
 saveGame();
+updateAwayVisual();
 }
 function showContinuePrompt(){
   const modal = document.getElementById('mo');
