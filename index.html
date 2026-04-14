@@ -366,7 +366,33 @@ const CHAT_EVENTS=[
 
 let usedEvents=[];
 let htimer=null;
+function saveGame(){
+  const saveData = {
+    G: G,
+    usedEvents: usedEvents,
+    day: G.day
+  };
 
+  localStorage.setItem("princeSave", JSON.stringify(saveData));
+}
+function loadGame(){
+  const data = localStorage.getItem("princeSave");
+  if(!data) return false;
+
+  const saveData = JSON.parse(data);
+
+  G = saveData.G;
+  usedEvents = saveData.usedEvents || [];
+
+  updateUI();
+  updateConditionSprite();
+
+  return true;
+}
+function resetGame(){
+  localStorage.removeItem("princeSave");
+  location.reload();
+}
 function exitHeadpat(){
   G.headpatMode = false;
   document.body.style.cursor = "default";
@@ -437,11 +463,23 @@ function petPrince(){
     return;
   }
 
-  // 😊 NORMAL STATE
-  showExpression('happy',2500);
-  showDialogue(TOUCH_LINES[Math.floor(Math.random()*TOUCH_LINES.length)]);
-  G.stress = Math.max(0, G.stress - 3);
+// 😶 NEGLECTED STATE OVERRIDE
+if(G.neglect >= 8){
+  const distantLines = [
+    "...Yes, father.",
+    "Do you require something.",
+    "...I am available.",
+    "(He straightens immediately.)"
+  ];
 
+  showExpression('angry', 2500); // your sad sprite
+  showDialogue(distantLines[Math.floor(Math.random()*distantLines.length)]);
+  return;
+}
+
+// 😊 NORMAL
+showExpression('happy',2500);
+showDialogue(TOUCH_LINES[Math.floor(Math.random()*TOUCH_LINES.length)]);
   updateUI();
 }
 function showExpression(type,dur){
@@ -541,13 +579,19 @@ function orderPrince(task){
   const ret = td.ret[Math.floor(Math.random()*td.ret.length)];
   showDialogue(ret,4000);
 
-  // ✅ FIX: washing actually cleans him
-  if (task === "wash") {
-    G.condition = "normal";
-    G.autoHandled = false;
-    G.ignoredCondition = false;
-    updateConditionSprite();
-  }
+if (task === "wash") {
+  G.condition = "normal";
+  G.autoHandled = false;
+  G.ignoredCondition = false;
+
+  // 🔥 force-hide ALL condition layers
+  document.getElementById('s-blood').style.opacity = "0";
+  document.getElementById('s-muddy').style.opacity = "0";
+  document.getElementById('s-blood-tap').style.opacity = "0";
+  document.getElementById('s-muddy-tap').style.opacity = "0";
+
+  updateConditionSprite();
+}
 }
 // 🔥 AUTO-HANDLE CONSEQUENCE
 if (task === "sleep" && G.ignoredCondition && (G.condition === "muddy" || G.condition === "blood")) {
@@ -577,7 +621,22 @@ if (task === "sleep" && G.ignoredCondition && (G.condition === "muddy" || G.cond
   advanceTime(2);}
 },1000); 
 }
+function updateEmotionalState(){
+  const c = document.getElementById('sc2');
 
+  // ❗ DO NOT override temporary reactions
+  if(c.classList.contains('is-happy') || c.classList.contains('is-angry')){
+    return;
+  }
+
+  // clear only persistent state
+  c.classList.remove('is-distant');
+
+  // apply long-term mood
+  if(G.neglect >= 8){
+    c.classList.add('is-distant');
+  }
+}
 function praiseScold(type){
   closeAllMenus();
   if(type==='praise'){
@@ -1110,11 +1169,56 @@ function updateUI(){
   // hunger bar
   const hb=document.getElementById('hunger-bar');
   hb.style.background=G.hunger>=80?'#c06010':'#4ead52';
+updateEmotionalState();
+saveGame();
 }
+function showContinuePrompt(){
+  const modal = document.getElementById('mo');
+  const title = document.getElementById('mh');
+  const body = document.getElementById('mb');
+  const opts = document.getElementById('mopts');
 
+  title.innerText = "Continue your journey?";
+  body.innerText = "A previous save was found.";
+
+  opts.innerHTML = '';
+
+  const contBtn = document.createElement('button');
+  contBtn.className = 'opt-btn';
+  contBtn.innerText = "Continue";
+  contBtn.onclick = ()=>{
+    loadGame();
+    modal.classList.remove('open');
+  };
+
+  const newBtn = document.createElement('button');
+  newBtn.className = 'opt-btn';
+  newBtn.innerText = "Start New";
+  newBtn.onclick = ()=>{
+    resetGame();
+  };
+
+  opts.appendChild(contBtn);
+  opts.appendChild(newBtn);
+
+  modal.classList.add('open');
+}
+function startNewGame(){
+  showBanner(STORY[1].title, STORY[1].text);
+  updateUI();
+}
 // Initial story
-showBanner(STORY[1].title,STORY[1].text);
-updateUI();
+window.onload = function(){
+
+  const hasSave = localStorage.getItem("princeSave");
+
+  if(hasSave){
+    showContinuePrompt();
+  } else {
+    startNewGame();
+  }
+
+};
 </script>
 </body>
 </html>
