@@ -684,14 +684,22 @@ function triggerAwayThought(){
   const pool = thoughts[G.awayState];
   if(!pool) return;
 
-  showDialogue(pool[Math.floor(Math.random()*pool.length)], 2500);
+  // Select thought and force dialogue to show
+  const thought = pool[Math.floor(Math.random()*pool.length)];
+  
+  // We use 0 for duration and 'true' for persistent to ensure 
+  // the 'The Prince will return' text doesn't fight it as much
+  showDialogue(thought, 3000); 
 }
+
+// Fixed Interval: Lowered the random check so it actually triggers
 setInterval(()=>{
-  if(G.isBusy || !G.awayState) return;
-  if(Math.random() < 0.35){
-    triggerAwayThought();
+  if(G.isBusy && G.awayState) { // Only while busy and away
+    if(Math.random() > 0.5){ // 50% chance every 8 seconds
+      triggerAwayThought();
+    }
   }
-}, 6000);
+}, 8000);
 function updateEmotionalState(){
   const c = document.getElementById('sc2');
 
