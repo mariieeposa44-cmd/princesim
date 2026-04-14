@@ -9,10 +9,8 @@
   *{box-sizing:border-box;margin:0;padding:0}
   body{background:#c8c0b8;font-family:'Patrick Hand',cursive;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:10px}
   #gc{width:980px;max-width:100%;height:610px;background:#fcfcfc;background-image:radial-gradient(#ddd 1px,transparent 0);background-size:38px 38px;border:5px solid #1a1a1a;position:relative;overflow:hidden;box-shadow:12px 12px 0 rgba(0,0,0,.12)}
-  /* time stamp */
   #ts{position:absolute;top:14px;left:14px;border:3px solid #8ba4d1;background:#e1ecff;padding:4px 14px;border-radius:10px 30px 10px 20px;display:flex;align-items:center;gap:8px;font-size:1.3rem;color:#4a6fa5;z-index:20}
   #day-disp{position:absolute;top:14px;left:200px;background:#f5e6c8;border:3px solid #c8a870;padding:4px 14px;border-radius:20px;font-size:1.1rem;color:#7a5c2a;z-index:20}
-  /* stats */
   #sp{position:absolute;top:95px;left:14px;display:flex;flex-direction:column;gap:18px;z-index:20}
   .sr{display:flex;align-items:center;gap:8px}
   .si{font-size:1.6rem}
@@ -20,33 +18,8 @@
   .bar{height:100%;transition:width .4s ease-out}
   .stress{background:#9e1b32}.hunger{background:#4ead52}.hygiene{background:#1b8a32}.jam{background:#5e0000;box-shadow:0 0 8px red}
   .bl{position:absolute;bottom:-17px;left:8px;font-size:.8rem;color:#9e1b32;font-weight:bold}
-  /* prince */
-  #pa{
-  position:absolute;
-  bottom:0;              
-  left:50%;
-  transform:translateX(-50%);
-  text-align:center;
-  z-index:5;
-  cursor:pointer;
-}
-/* Only hide the blinking and happy layers, NOT the base body (#sn) */
-.is-confronting #sb, 
-.is-confronting #sh {
-  opacity: 0 !important;
-  animation: none !important;
-}
-
-/* Ensure the specific layers show up */
-#s-angry, #s-frustrated {
-  transition: opacity 0.3s ease;
-}
-  .bc2{
-  position:relative;
-  display:inline-block;
-  width:1075px;
-  max-width:none;
-}
+  #pa{position:absolute;bottom:0;left:50%;transform:translateX(-50%);text-align:center;z-index:5;cursor:pointer}
+  .bc2{position:relative;display:inline-block;width:1075px;max-width:none}
   .bc2 img{width:100%;height:auto;display:block}
   .lyr{position:absolute;top:0;left:0;width:100%}
   #sn{position:relative;opacity:1;animation:bo 6s steps(1) infinite}
@@ -59,30 +32,82 @@
   .is-happy #sh{opacity:1}
   .is-angry #sn,.is-angry #sb{animation-play-state:paused;opacity:0}
   .is-angry #sa{opacity:1}
+
   /* dialogue box */
-  #db{position:absolute;bottom: 220px;left:50%;transform:translateX(-50%);width:460px;min-height:52px;background:#fffdf5;border:3px solid #1a1a1a;border-radius:18px;padding:10px 18px;font-size:1.05rem;color:#2a1a0a;z-index:40;;text-align:center;opacity:0;transition:opacity .3s}
+  #db{
+    position:absolute;
+    bottom:220px;
+    left:50%;
+    transform:translateX(-50%);
+    width:460px;
+    min-height:52px;
+    background:#fffdf5;
+    border:3px solid #1a1a1a;
+    border-radius:18px;
+    padding:10px 18px;
+    font-size:1.05rem;
+    color:#2a1a0a;
+    z-index:40;
+    text-align:center;
+    opacity:0;
+    transition:opacity .4s;
+    pointer-events:none;
+  }
   #db.show{opacity:1}
-  /* chat bubble event */
-#cb{
-  position:absolute;
-  top:140px;
-  right:150px; 
-  cursor:pointer;
-  z-index:25;
-  display:none;
-  animation:flt 2s infinite ease-in-out;
-}
+
+  /* away thought — softer, italic, fades differently */
+  #db.thought{
+    background:#f0f4ff;
+    border-color:#8ba4d1;
+    color:#4a4a7a;
+    font-style:italic;
+  }
+
+  /* chat bubble */
+  #cb{
+    position:absolute;
+    top:140px;
+    right:150px;
+    cursor:pointer;
+    z-index:25;
+    display:none;
+    /* start invisible, animate in */
+    opacity:0;
+    transition:opacity 1.2s ease;
+  }
+  #cb.visible{
+    display:block;
+    animation:flt 2.5s infinite ease-in-out;
+  }
+  #cb.fading-in{
+    opacity:1;
+  }
   @keyframes flt{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-8px) scale(1.05)}}
   .cbubble{background:#f5d832;border:3px solid #1a1a1a;border-radius:50%;width:62px;height:62px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;box-shadow:4px 4px 0 #1a1a1a}
-  /* actions */
+
+  /* "knock knock" pre-bubble hint */
+  #knock-hint{
+    position:absolute;
+    top:115px;
+    right:155px;
+    font-size:.85rem;
+    color:#666;
+    font-style:italic;
+    opacity:0;
+    transition:opacity 1s;
+    z-index:24;
+    pointer-events:none;
+  }
+  #knock-hint.show{opacity:1}
+
   #ap{position:absolute;top:24px;right:24px;display:flex;flex-direction:column;gap:18px;z-index:20}
   .ai{text-align:center;cursor:pointer;transition:transform .1s}
   .ai:hover{transform:scale(1.1)}
   .bf{width:72px;height:72px;border:3px solid #1a1a1a;background:white;border-radius:10px;display:flex;justify-content:center;align-items:center;box-shadow:4px 4px 0 #1a1a1a;font-size:1.8rem}
   .ai label{display:block;margin-top:4px;font-weight:bold;color:#b22222;text-decoration:underline;cursor:pointer;font-size:.9rem}
-  /* timer */
+
   #td{position:absolute;bottom:100px;left:50%;transform:translateX(-50%);font-size:1.1rem;color:#555;display:none;background:#fffbe8;border:2px solid #ccc;padding:6px 16px;border-radius:20px;z-index:30}
-  /* modal overlay */
+
   #mo{position:absolute;inset:0;background:rgba(0,0,0,.55);z-index:50;display:none;align-items:center;justify-content:center}
   #mo.open{display:flex}
   #mp{background:#fcfcf0;border:4px solid #1a1a1a;border-radius:20px;padding:28px;width:520px;max-width:95%;font-family:'Patrick Hand',cursive;position:relative}
@@ -91,27 +116,27 @@
   .opt-btn{display:block;width:100%;text-align:left;padding:10px 14px;margin:6px 0;background:#fff;border:2.5px solid #1a1a1a;border-radius:12px;font-family:'Patrick Hand',cursive;font-size:1rem;cursor:pointer;color:#2a1a0a;transition:background .15s}
   .opt-btn:hover{background:#f0e8d0}
   .close-btn{position:absolute;top:12px;right:16px;background:none;border:none;font-size:1.5rem;cursor:pointer;color:#888}
-  /* talk submenu */
+
   #tsm{position:absolute;top:24px;right:110px;background:#fffdf5;border:3px solid #1a1a1a;border-radius:14px;padding:12px;z-index:40;display:none;flex-direction:column;gap:8px;width:170px}
   #tsm.open{display:flex}
   .tsm-btn{padding:8px 12px;background:white;border:2px solid #1a1a1a;border-radius:10px;cursor:pointer;font-family:'Patrick Hand',cursive;font-size:.95rem;text-align:left}
   .tsm-btn:hover{background:#f0e8d0}
-  /* gift submenu */
+
   #gsm{position:absolute;top:120px;right:110px;background:#fffdf5;border:3px solid #1a1a1a;border-radius:14px;padding:12px;z-index:40;display:none;flex-direction:column;gap:8px;width:170px}
   #gsm.open{display:flex}
-  /* jam glow */
+
   #jr{display:none}
-  /* footer */
+
   #fc{position:absolute;bottom:14px;right:14px;display:flex;gap:16px;z-index:20}
   .fb{cursor:pointer;font-size:1rem;background:#f5f0e0;border:2px solid #bbb;border-radius:10px;padding:6px 12px}
-  /* story banner */
+
   #sb2{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(10,5,20,.85);z-index:60;display:none;align-items:center;justify-content:center}
   #sb2.open{display:flex}
   #sc{background:#1a0a0a;border:3px solid #8a2020;border-radius:16px;padding:30px;width:560px;color:#f0e0c0;font-family:'Patrick Hand',cursive;text-align:center}
   #sc h2{font-size:1.6rem;color:#e8c070;margin-bottom:14px}
   #sc p{font-size:1.1rem;line-height:1.7;margin-bottom:20px}
   #sc button{padding:10px 28px;background:#8a2020;border:none;border-radius:10px;color:#f0e0c0;font-family:'Patrick Hand',cursive;font-size:1.1rem;cursor:pointer}
-  /* ending screen */
+
   #es{position:absolute;inset:0;z-index:70;display:none;align-items:center;justify-content:center}
   #es.open{display:flex}
   #ec{padding:36px;width:600px;border-radius:20px;font-family:'Patrick Hand',cursive;text-align:center;border:4px solid}
@@ -121,52 +146,38 @@
   #ec h1{font-size:2rem;margin-bottom:16px}
   #ec p{font-size:1.1rem;line-height:1.7;margin-bottom:20px}
   #ec button{padding:10px 24px;border:2px solid;border-radius:12px;cursor:pointer;font-family:'Patrick Hand',cursive;font-size:1rem;background:transparent}
-#exit-headpat{
-  position:absolute;
-  bottom:200px;
-  right:40px;
-  background:#fffdf5;
-  border:3px solid #1a1a1a;
-  border-radius:12px;
-  padding:6px 10px;
-  font-size:1.2rem;
-  cursor:pointer;
-  z-index:45;
-  display:none;
-  box-shadow:3px 3px 0 #1a1a1a;
-}
-#exit-headpat:hover{
-  background:#f0e8d0;
-}
-#vignette{
-  position:absolute;
-  inset:0;
-  pointer-events:none;
-  background:radial-gradient(circle, transparent 55%, rgba(0,0,0,0.75) 100%);
-  z-index:45;
-  opacity:0;
-  transition:opacity .4s;
-}
-#vignette.active{
-  opacity:1;
-}
-.is-resting #sn,
-.is-resting #sb {
-  animation: blinkRest 4s infinite;
-}
 
-@keyframes blinkRest {
-  0%, 92%, 100% { opacity: 1; }
-  93%, 95% { opacity: 0; }
-}
+  #exit-headpat{position:absolute;bottom:200px;right:40px;background:#fffdf5;border:3px solid #1a1a1a;border-radius:12px;padding:6px 10px;font-size:1.2rem;cursor:pointer;z-index:45;display:none;box-shadow:3px 3px 0 #1a1a1a}
+  #exit-headpat:hover{background:#f0e8d0}
+
+  #vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle, transparent 55%, rgba(0,0,0,0.75) 100%);z-index:45;opacity:0;transition:opacity .4s}
+  #vignette.active{opacity:1}
+
+  #interrupt-btn{
+    position:absolute;
+    bottom:14px;
+    left:14px;
+    display:none;
+    padding:8px 16px;
+    background:#fffbe8;
+    border:2px solid #999;
+    border-radius:10px;
+    font-family:'Patrick Hand',cursive;
+    font-size:.95rem;
+    cursor:pointer;
+    z-index:20;
+  }
+  #interrupt-btn:hover{background:#f0e8d0}
+
+  #settings-modal{position:absolute;inset:0;background:rgba(0,0,0,.55);z-index:80;display:none;align-items:center;justify-content:center}
 </style>
 </head>
 <body>
 <div id="gc">
   <div id="ts"><span id="ti">☀️</span><span id="cd">MORNING</span></div>
   <div id="day-disp">Day <span id="dd">1</span> / 12</div>
-<div id="exit-headpat" onclick="exitHeadpat()">✖</div>
-<div id="vignette"></div>
+  <div id="exit-headpat" onclick="exitHeadpat()">✖ End headpat</div>
+  <div id="vignette"></div>
 
   <div id="sp">
     <div class="sr"><span class="si">😨</span><div class="bc"><div id="stress-bar" class="bar stress" style="width:20%"></div><span class="bl">stress</span></div></div>
@@ -181,28 +192,22 @@
       <img id="sb" class="lyr" src="Prince_Normal_Blink.png" alt="">
       <img id="sh" class="lyr" src="Prince_Touch_Happy.png" alt="">
       <img id="sa" class="lyr" src="Prince_Sad.png" alt="">
-<img id="s-muddy" class="lyr" src="Prince_Muddy.png" style="opacity:0;">
-<img id="s-blood" class="lyr" src="Prince_Bloodied.png" style="opacity:0;">
-<img id="s-muddy-tap" class="lyr" src="Prince_Muddy_Tap.png" style="opacity:0;">
-<img id="s-blood-tap" class="lyr" src="Prince_Bloodied_Tap.png" style="opacity:0;">
-<img id="s-angry" class="lyr" src="Prince_Angry.png" style="opacity:0;">
-<img id="s-frustrated" class="lyr" src="Prince_Frustrated.png" style="opacity:0;">
+      <img id="s-muddy" class="lyr" src="Prince_Muddy.png" style="opacity:0;">
+      <img id="s-blood" class="lyr" src="Prince_Bloodied.png" style="opacity:0;">
+      <img id="s-muddy-tap" class="lyr" src="Prince_Muddy_Tap.png" style="opacity:0;">
+      <img id="s-blood-tap" class="lyr" src="Prince_Bloodied_Tap.png" style="opacity:0;">
+      <img id="s-angry" class="lyr" src="Prince_Angry.png" style="opacity:0;">
+      <img id="s-frustrated" class="lyr" src="Prince_Frustrated.png" style="opacity:0;">
     </div>
   </div>
 
   <div id="db">Good morning, father.</div>
-<div id="choices" style="
-  position:absolute;
-  bottom:10px;
-  left:50%;
-  transform:translateX(-50%);
-  width:460px;
-  z-index:35;
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-"></div>
-  <!-- Chat bubble event -->
+
+  <!-- Subtle knock-knock hint before the bubble appears -->
+  <div id="knock-hint">...knock knock</div>
+
+  <div id="choices" style="position:absolute;bottom:10px;left:50%;transform:translateX(-50%);width:460px;z-index:35;display:flex;flex-direction:column;gap:8px;"></div>
+
   <div id="cb" onclick="openChatEvent()">
     <div class="cbubble">❗</div>
   </div>
@@ -218,8 +223,9 @@
       <div class="bf">🎁</div><label>GIFT</label>
     </div>
   </div>
-<button onclick="interruptAction()" id="interrupt-btn" style="display:none;">Call him back</button>
-  <!-- Talk submenu -->
+
+  <button onclick="interruptAction()" id="interrupt-btn">↩ Call him back</button>
+
   <div id="tsm">
     <div style="font-weight:bold;font-size:.9rem;color:#555;padding:2px 4px">Order:</div>
     <button class="tsm-btn" onclick="orderPrince('patrol')">⚔️ Patrol</button>
@@ -232,7 +238,6 @@
     <button class="tsm-btn" onclick="closeTalkMenu()">✖ Cancel</button>
   </div>
 
-  <!-- Gift submenu -->
   <div id="gsm">
     <div style="font-weight:bold;font-size:.9rem;color:#555;padding:2px 4px">Gift:</div>
     <button class="tsm-btn" onclick="giveGift('headpat')">🤚 Headpat</button>
@@ -250,7 +255,7 @@
   </div>
 </div>
 
-<!-- Modal (chat events / choices) -->
+<!-- Modal -->
 <div id="mo">
   <div id="mp">
     <button class="close-btn" onclick="closeModal()">✖</button>
@@ -259,45 +264,22 @@
     <div id="mopts"></div>
   </div>
 </div>
-<div id="settings-modal" style="
-  position:absolute;
-  inset:0;
-  background:rgba(0,0,0,.55);
-  z-index:80;
-  display:none;
-  align-items:center;
-  justify-content:center;
-">
-  <div style="
-    background:#fcfcf0;
-    border:4px solid #1a1a1a;
-    border-radius:20px;
-    padding:24px;
-    width:480px;
-    max-width:90%;
-    font-family:'Patrick Hand',cursive;
-    position:relative;
-  ">
-    <button onclick="closeSettings()" style="
-      position:absolute;
-      top:10px;
-      right:14px;
-      border:none;
-      background:none;
-      font-size:1.4rem;
-      cursor:pointer;
-    ">✖</button>
 
+<!-- Settings -->
+<div id="settings-modal" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,.55);z-index:80;align-items:center;justify-content:center;">
+  <div style="background:#fcfcf0;border:4px solid #1a1a1a;border-radius:20px;padding:24px;width:480px;max-width:90%;font-family:'Patrick Hand',cursive;position:relative;">
+    <button onclick="closeSettings()" style="position:absolute;top:10px;right:14px;border:none;background:none;font-size:1.4rem;cursor:pointer;">✖</button>
     <h2 style="margin-bottom:12px;">Settings</h2>
-
-    <p style="font-size:0.95rem; line-height:1.5; color:#444;">
+    <p style="font-size:0.95rem;line-height:1.5;color:#444;">
       <strong>Disclaimer:</strong><br><br>
-      This is a fan-made project. The character Dark Choco Cookie belongs to Devsisters.  
-      I do not own or claim any official rights to the character, story, or original assets.  
-      This project is created for personal and non-commercial use only.
+      This is a fan-made project. The character Dark Choco Cookie belongs to Devsisters.<br>
+      No official rights claimed. Created for personal, non-commercial use only.
     </p>
+    <br>
+    <button class="tsm-btn" onclick="resetGame()" style="color:#8a0000;border-color:#8a0000;">🗑 Reset Save & Start Over</button>
   </div>
 </div>
+
 <!-- Story banner -->
 <div id="sb2">
   <div id="sc">
@@ -319,35 +301,27 @@
 <script>
 const CYCLES=["MORNING","AFTERNOON","EVENING","NIGHT"];
 const ICONS=["☀️","🌤️","🌙","⭐"];
+
 let G={
-  day:1,
-  ci:0,
-  stress:20,
-  hunger:80,
-  hygiene:100,
-  corruption:0,
-  bond:50,
-  pamper:0,
-  neglect:0,
-  isBusy:false,
-  awayTimer:null,
-  scoldsToday:0,
-  praisesToday:0,
-  eventShown:false,
+  day:1,ci:0,stress:20,hunger:80,hygiene:100,corruption:0,
+  bond:50,pamper:0,neglect:0,isBusy:false,
+  scoldsToday:0,praisesToday:0,
   chatPending:false,
-  condition:"normal", 
-headpatMode:false,
-ignoredCondition: false,   
-autoHandled: false, 
-awayState: null, // "patrol" | "delegate" | "sleep"
-awayOpacity: 1       
+  condition:"normal",
+  headpatMode:false,
+  ignoredCondition:false,
+  autoHandled:false,
+  awayState:null,
+  confrontationTriggered:false,
+  inConfrontation:false,
+  confrontStep:0
 };
 
 const STORY={
   1:{title:"Day 1 — A Quiet Morning",text:"Dark Choco wakes before dawn as always. He greets you stiffly — he never learned how to be casual with his father. But his eyes search your face, hoping for something."},
   3:{title:"Day 3 — Caramel Arrow's Visit",text:"Caramel Arrow passes through the gates. You notice Dark Choco watching her with something almost like admiration. She asks if he could teach her some new techniques."},
   5:{title:"Day 5 — A Restless Night",text:"The castle guards report the Prince did not sleep well. He was seen standing on the battlements alone, looking south. He says nothing when asked about it."},
-  7:{title:"Day 7 — The Sword Whispers",text:"The watchers spoke of the legendary sword on The Bad Lands. Dark Choco claims he is not interested, yet he hesitates on the topic. The ??? meter appears."},
+  7:{title:"Day 7 — The Sword Whispers",text:"The watchers spoke of the legendary sword in The Bad Lands. Dark Choco claims he is not interested, yet he hesitates on the topic. The ??? meter appears."},
   9:{title:"Day 9 — Distance Growing",text:"Dark Choco completes every order without complaint. But his answers are shorter. His eyes linger on exits. Something is pulling at him — and only you can feel what direction it pulls."},
   11:{title:"Day 11 — The Last Chance",text:"Tomorrow is the final day. The Strawberry Jam Sword's pull is at its strongest. How you treated your son over these 11 days will determine what tomorrow brings."},
   12:{title:"Day 12 — The Turning Point",text:"This is it. Whatever happens today will be remembered in Dark Cacao's history — either as the day a king saved his son, or the day a father failed him."}
@@ -360,7 +334,7 @@ const CHAT_EVENTS=[
     {t:"We will discuss this another time.",r:"withdraw",bond:-8,stress:10,neglect:1}
   ]},
   {q:"The watchers spoke of a sword in the Bad Lands...",opts:[
-    {t:"Absolutely not. That sword is sealed for good reason.",r:"firm",bond:0,stress:-5,corruption:-10},
+    {t:"Absolutely not. That power is sealed for good reason.",r:"firm",bond:0,stress:-5,corruption:-10},
     {t:"...Perhaps when you are older.",r:"deflect",bond:3,stress:3,corruption:5},
     {t:"(You say nothing and walk away.)",r:"silence",bond:-12,stress:12,neglect:1,corruption:15}
   ]},
@@ -385,690 +359,7 @@ const CHAT_EVENTS=[
     {t:"(You leave the room without answering.)",r:"absent",bond:-20,stress:20,neglect:2,corruption:10}
   ]}
 ];
-function updateAwayVisual(){
-  const c = document.getElementById('sc2');
 
-  if(G.awayState){
-    c.style.opacity = "0.35";   // visually "not present"
-    c.style.filter = "grayscale(0.4)";
-  } else {
-    c.style.opacity = "1";
-    c.style.filter = "none";
-  }
-}
-let usedEvents=[];
-let htimer=null;
-function saveGame(){
-  const saveData = {
-    G: G,
-    usedEvents: usedEvents,
-    day: G.day
-  };
-
-  localStorage.setItem("princeSave", JSON.stringify(saveData));
-}
-function loadGame(){
-  const data = localStorage.getItem("princeSave");
-  if(!data) return false;
-
-  const saveData = JSON.parse(data);
-
-  G = saveData.G;
-  usedEvents = saveData.usedEvents || [];
-
-  updateUI();
-  updateConditionSprite();
-
-  return true;
-}
-function resetGame(){
-  localStorage.removeItem("princeSave");
-  location.reload();
-}
-function exitHeadpat(){
-  G.headpatMode = false;
-  document.body.style.cursor = "default";
-  document.getElementById('exit-headpat').style.display = "none";
-
-  headpatCount = 0;
-
-  // clear lingering timers
-  if(headpatTimeout) clearTimeout(headpatTimeout);
-
-  const c = document.getElementById('sc2');
-  c.classList.remove('is-happy','is-angry');
-
-  showDialogue("...Ah—", 2000);
-}
-
-function showDialogue(text, dur=3500, persistent=false){
-  const d = document.getElementById('db');
-  d.innerText = text;
-  d.classList.add('show');
-
-  if(htimer) clearTimeout(htimer);
-
-  if(!persistent){
-    htimer = setTimeout(()=> d.classList.remove('show'), dur);
-  }
-}
-
-const TOUCH_LINES=[
-  "Good morning, father.","Do you require something?","I will do better today.",
-  "I trained harder last night.","...I hope I did not disappoint you.",
-  "Is there an order for me?","Father.","I am ready.",
-  "The castle is secured, father.","...Yes?"
-];
-
-function petPrince(){
-  if(G.isBusy) return;
-
-  // 🩸 BLOODIED STATE
-  if (G.condition === "blood") {
-    G.ignoredCondition = true;
-    showConditionTap();
-
-    const lines = [
-      "...It's nothing, father.",
-      "A minor injury. It does not affect my duty.",
-      "Please do not concern yourself."
-    ];
-
-    showDialogue(lines[Math.floor(Math.random()*lines.length)]);
-    G.stress = Math.min(100, G.stress + 2);
-	G.bond = Math.max(0, G.bond - 1);
-    updateUI();
-    return;
-  }
-
-  // 🟤 MUDDY STATE
-  if (G.condition === "muddy") {
-    G.ignoredCondition = true;
-    showConditionTap();
-
-    const lines = [
-      "Apologies, father. I will clean myself shortly.",
-      "The terrain was difficult today.",
-      "...I will present myself better next time."
-    ];
-
-    showDialogue(lines[Math.floor(Math.random()*lines.length)]);
-    G.stress = Math.max(0, G.stress + 1);
-	G.bond = Math.max(0, G.bond - 1);
-    updateUI();
-    return;
-  }
-
-// 😶 NEGLECTED STATE OVERRIDE
-if(G.neglect >= 8){
-  const distantLines = [
-    "...Yes, father.",
-    "Do you require something.",
-    "...I am available.",
-    "(He straightens immediately.)"
-  ];
-
-  showExpression('angry', 2500); // your sad sprite
-  showDialogue(distantLines[Math.floor(Math.random()*distantLines.length)]);
-  return;
-}
-
-// 😊 NORMAL
-showExpression('happy',2500);
-showDialogue(TOUCH_LINES[Math.floor(Math.random()*TOUCH_LINES.length)]);
-  updateUI();
-}
-function showExpression(type,dur){
-  const c=document.getElementById('sc2');
-  c.classList.remove('is-happy','is-angry');
-  if(type==='happy')c.classList.add('is-happy');
-  else if(type==='angry')c.classList.add('is-angry');
-  setTimeout(()=>{
-    c.classList.remove('is-happy','is-angry');
-  },dur||2500);
-}
-
-function openFeedMenu(){
-  if(G.isBusy)return;
-  closeAllMenus();
-  if(G.hunger<=20){showDialogue("I am not hungry, father.");return;}
-  G.hunger=Math.max(0,G.hunger-25);
-  showExpression('happy',2500);
-  showDialogue("Thank you for the meal, father.");
-  updateUI();
-}
-
-function toggleTalkMenu(){
-  if(G.isBusy)return;
-  const m=document.getElementById('tsm');
-  m.classList.toggle('open');
-  document.getElementById('gsm').classList.remove('open');
-}
-function closeTalkMenu(){document.getElementById('tsm').classList.remove('open');}
-function toggleGiftMenu(){
-  if(G.isBusy)return;
-  const m=document.getElementById('gsm');
-  m.classList.toggle('open');
-  document.getElementById('tsm').classList.remove('open');
-}
-function closeGiftMenu(){document.getElementById('gsm').classList.remove('open');}
-function closeAllMenus(){closeTalkMenu();closeGiftMenu();}
-
-function orderPrince(task){
-  if(G.isBusy)return;
-  closeAllMenus();
-  const taskData={
-    patrol:{msg:"Yes, father. I will patrol the eastern border.",ret:["He returns from patrol, dust on his armor.","He comes back with a cut on his cheek — nothing serious.","He returns quietly. Something in his eyes looks distant."],stress:-5,hygiene:-20,hunger:-15},
-    sleep:{msg:"Understood. I will rest.",ret:["He returns looking more rested.","He slept, but woke early again."],stress:-15,hygiene:0,hunger:-5},
-    delegate:{msg:"I will represent the kingdom with honor, father.",ret:["The delegation went smoothly, he reports.","He returns with a sealed letter from the southern province."],stress:-8,hygiene:-5,hunger:-20},
-    wash:{
-  msg: G.autoHandled ? "...I have already done so." : "...Of course.",
-  ret: G.autoHandled 
-    ? ["He is already clean. He avoids your gaze."] 
-    : ["He returns looking cleaner, though still stiff."],
-  stress: G.autoHandled ? 5 : 0,
-  hygiene: 100,
-  hunger: 0,
-}
-  };
-  const td=taskData[task];
-  showDialogue(td.msg,4000);
-  G.isBusy=true;
-G.awayState = task;
-updateAwayVisual();
-  document.getElementById('td').style.display='block';
-  let t = Math.floor(20 + Math.random() * 15); 
-  document.getElementById('sec').innerText=t;
-  const iv=setInterval(()=>{// trigger mid-action event
-if (t === 20 || t === 10) {
-  if (Math.random() < 0.5) {
-    triggerMidActionEvent(task);
-  }
-}
-    t--;document.getElementById('sec').innerText=t;
-    if (t <= 0) {
-  clearInterval(iv);
-  G.isBusy = false;
-  document.getElementById('td').style.display = 'none';
-
-  if (task === "patrol") {
-
-  const roll = Math.random();
-
-  if (roll < 0.33) {
-    G.condition = "muddy";
-    updateConditionSprite();
-
-    showDialogue("He returns covered in mud. \"The terrain was rough, father.\"");
-    G.hygiene = Math.max(0, G.hygiene - 25);
-  }
-
-  else if (roll < 0.66) {
-    G.condition = "blood";
-    updateConditionSprite();
-
-    showDialogue("There’s blood on his sleeve. \"It’s nothing.\"");
-    G.stress = Math.min(100, G.stress + 10);
-    G.hygiene = Math.max(0, G.hygiene - 45);
-  }
-
-  else {
-    const ret = td.ret[Math.floor(Math.random()*td.ret.length)];
-    showDialogue(ret,4000);
-  }
-if(G.bond > 70){
-  showDialogue("He reports in detail, almost eager for your approval.");
-}
-else if(G.neglect > 7){
-  showDialogue("He gives a short report. No eye contact.");
-}
-
-} else {
-
-  const ret = td.ret[Math.floor(Math.random()*td.ret.length)];
-  showDialogue(ret,4000);
-
-if (task === "wash") {
-  G.condition = "normal";
-  G.autoHandled = false;
-  G.ignoredCondition = false;
-
-  // 🔥 force-hide ALL condition layers
-  document.getElementById('s-blood').style.opacity = "0";
-  document.getElementById('s-muddy').style.opacity = "0";
-  document.getElementById('s-blood-tap').style.opacity = "0";
-  document.getElementById('s-muddy-tap').style.opacity = "0";
-
-  updateConditionSprite();
-}
-}
-// 🔥 AUTO-HANDLE CONSEQUENCE
-if (task === "sleep" && G.ignoredCondition && (G.condition === "muddy" || G.condition === "blood")) {
-
-  G.autoHandled = true;
-  G.ignoredCondition = false;
-
-  setTimeout(()=>{
-    showDialogue("...I have already taken care of it myself, father.", 4000);
-
-    // emotional consequence
-    G.bond = Math.max(0, G.bond - 12);
-    G.stress = Math.min(100, G.stress + 10);
-
-    // he cleans himself automatically
-    G.condition = "normal";
-    updateConditionSprite();
-
-    updateUI();
-  }, 1200);
-}
-
-  G.stress = Math.max(0, Math.min(100, G.stress + td.stress));
-  G.hygiene = Math.max(0, Math.min(100, G.hygiene + td.hygiene));
-  G.hunger = Math.max(0, Math.min(100, G.hunger + td.hunger));
-G.awayState = null;
-updateAwayVisual();
-  advanceTime(2);}
-},1000); 
-}
-function triggerAwayThought(){
-  if(!G.awayState) return;
-
-  const thoughts = {
-    patrol: [
-      "...The wind is harsh today.",
-      "I should not hesitate next time.",
-      "Father expects results."
-    ],
-    delegate: [
-      "...I hope I represented the kingdom well.",
-      "Did I speak too formally again?",
-      "They were watching closely."
-    ],
-    sleep: [
-      "...I should have trained more.",
-      "Tomorrow will be difficult.",
-      "Father might call for me."
-    ]
-  };
-
-  const pool = thoughts[G.awayState];
-  if(!pool) return;
-
-  // Select thought and force dialogue to show
-  const thought = pool[Math.floor(Math.random()*pool.length)];
-  
-  // We use 0 for duration and 'true' for persistent to ensure 
-  // the 'The Prince will return' text doesn't fight it as much
-  showDialogue(thought, 3000); 
-}
-
-// Fixed Interval: Lowered the random check so it actually triggers
-setInterval(()=>{
-  if(G.isBusy && G.awayState) { // Only while busy and away
-    if(Math.random() > 0.5){ // 50% chance every 8 seconds
-      triggerAwayThought();
-    }
-  }
-}, 8000);
-function updateEmotionalState(){
-  const c = document.getElementById('sc2');
-
-  // ❗ DO NOT override temporary reactions
-  if(c.classList.contains('is-happy') || c.classList.contains('is-angry')){
-    return;
-  }
-
-  // clear only persistent state
-  c.classList.remove('is-distant');
-
-  // apply long-term mood
-  if(G.neglect >= 8){
-    c.classList.add('is-distant');
-  }
-}
-function praiseScold(type){
-  closeAllMenus();
-  if(type==='praise'){
-    G.praisesToday++;G.pamper++;G.bond=Math.min(100,G.bond+8);G.stress=Math.max(0,G.stress-10);
-    if(G.praisesToday>=3){
-      showExpression('happy',2000);
-      showDialogue("...Thank you, father. Though praise sits strangely on me.",3500);
-    }else{showExpression('happy',2000);showDialogue("...I will not disappoint you, father.",3000);}
-  }else{
-    G.scoldsToday++;G.neglect++;G.bond=Math.max(0,G.bond-10);G.stress=Math.min(100,G.stress+15);
-    showExpression('angry',2500);
-    const lines=["Yes, father.","I understand.","...I am sorry.","I will correct it."];
-    showDialogue(lines[Math.floor(Math.random()*lines.length)],3000);
-  }
-  updateUI();
-}
-setInterval(()=>{
-  if(G.isBusy) return;
-
-  if(Math.random() < 0.2){
-    const idleLines = [
-      "...He adjusts his grip on the sword.",
-      "He glances at you briefly.",
-      "He seems lost in thought."
-    ];
-    showDialogue(idleLines[Math.floor(Math.random()*idleLines.length)], 2000);
-  }
-}, 8000);
-function triggerMidActionEvent(task){
-  if(G.isBusy === false) return;
-
-  const events = {
-    patrol: [
-      {
-        text: "He encounters hostile scouts. What should he do?",
-        choices: [
-          {t:"Engage them", stress:10, bond:2},
-          {t:"Observe quietly", stress:-2, bond:1},
-          {t:"Retreat", stress:-5, bond:-2}
-        ]
-      },
-      {
-        text: "A villager asks for help mid-patrol.",
-        choices: [
-          {t:"Help them", bond:5, stress:2},
-          {t:"Stay focused on mission", bond:-2, stress:-2}
-        ]
-      }
-    ]
-  };
-
-  const pool = events[task];
-  if(!pool) return;
-
-  const e = pool[Math.floor(Math.random()*pool.length)];
-
-  G.isBusy = false; // temporarily pause action
-
-  const container = document.getElementById('choices');
-  container.innerHTML = '';
-
-showDialogue(e.text, 0, true);
-
-  e.choices.forEach(choice=>{
-    const btn = document.createElement('button');
-    btn.className = 'opt-btn';
-    btn.innerText = choice.t;
-
-btn.onclick = ()=>{
-  if(choice.stress) G.stress += choice.stress;
-  if(choice.bond) G.bond += choice.bond;
-
-  container.innerHTML = '';
-
-  // 👇 IMPORTANT: allow interaction again properly
-  G.isBusy = false;
-
-  updateUI();
-};
-    container.appendChild(btn);
-  });
-}
-function giveGift(type){
-  closeAllMenus();
-
-if(type === 'headpat'){
-  G.headpatMode = true;
-  document.body.style.cursor = "grab";
-
-  document.getElementById('exit-headpat').style.display = "block"; // 👈 ADD THIS
-
-  showDialogue("...F-father?", 2500);
-  return; 
-}
-
-  // ⬇️ KEEP EVERYTHING BELOW AS IS
-  const gifts={
-    headpat:{msg:"...F-father?",stress:-12,bond:10,pamper:1},
-    sword:{msg:"A training sword? I will use it well.",stress:-8,bond:8,pamper:1},
-    book:{msg:"Thank you. I will study it tonight.",stress:-5,bond:6},
-    food:{msg:"Cake? ...Thank you.",stress:-10,bond:8,pamper:1}
-  };
-
-  const g=gifts[type];
-
-  showExpression('happy',2500);
-  showDialogue(g.msg,3000);
-
-  G.stress=Math.max(0,G.stress+g.stress);
-  G.bond=Math.min(100,G.bond+g.bond);
-
-  if(g.pamper)G.pamper++;
-
-  updateUI();
-}
-let lastPetTime = 0;
-let headpatTimeout = null;
-function handlePet(e){
-  if(!G.headpatMode || G.isBusy) return;
-
-  const prince = document.getElementById('pa');
-  const rect = prince.getBoundingClientRect();
-
-  // 🧠 define "head zone" (top center area)
-  const headTop = rect.top;
-  const headBottom = rect.top + rect.height * 0.35;
-  const headLeft = rect.left + rect.width * 0.25;
-  const headRight = rect.left + rect.width * 0.75;
-
-  const x = e.clientX;
-  const y = e.clientY;
-
-  const isOnHead = (
-    x >= headLeft &&
-    x <= headRight &&
-    y >= headTop &&
-    y <= headBottom
-  );
-
-  if(!isOnHead){
-  document.body.style.cursor = "default";
-  return;
-} else {
-  document.body.style.cursor = "grabbing";
-}
-
-  const now = Date.now();
-  if(now - lastPetTime < 250) return;
-  lastPetTime = now;
-// clear previous "end" timer
-if(headpatTimeout) clearTimeout(headpatTimeout);
-
-const c = document.getElementById('sc2');
-c.classList.remove('is-angry');
-c.classList.add('is-happy');
-
-// after player stops moving → delay before removing
-headpatTimeout = setTimeout(()=>{
-  const c = document.getElementById('sc2');
-  c.classList.remove('is-happy');
-}, 500); // 👈 half a second linger
-
-  // 👇 dialogue handled below
-  triggerHeadpatDialogue();
-
-  G.stress = Math.max(0, G.stress - 2);
-  G.bond = Math.min(100, G.bond + 1);
-
-  updateUI();
-}
-let headpatCount = 0;
-
-function triggerHeadpatDialogue(){
-  headpatCount++;
-
-  let lines = [];
-
-  // 🧊 LOW BOND (awkward, unsure)
-  if(G.bond < 40){
-    lines = [
-      "...Father?",
-      "You do not have to do this.",
-      "...I am not a child."
-    ];
-  }
-
-  // 🌱 MID BOND (softening)
-  else if(G.bond < 70){
-    lines = [
-      "...This is... nice.",
-      "You rarely do this.",
-      "...I will remember this."
-    ];
-  }
-
-  // ☀️ HIGH BOND (emotionally open)
-  else{
-    lines = [
-      "...Stay a little longer.",
-      "I used to think you would never...",
-      "...Thank you, father."
-    ];
-  }
-
-if(headpatCount > 8){
-  // switch to sad sprite
-  const c = document.getElementById('sc2');
-  c.classList.remove('is-happy');
-  c.classList.add('is-angry'); // you're using this for sad sprite layer
-
-  lines = [
-    "...Father, that is enough.",
-    "You will ruin your image like this.",
-    "...People will see."
-  ];
-}
-setTimeout(()=>{
-  const c = document.getElementById('sc2');
-  c.classList.remove('is-angry');
-}, 1200);
-
-  // 🫠 VERY HIGH COUNT (quiet acceptance)
-  if(headpatCount > 14){
-    lines = [
-      "...",
-      "(He leans slightly into your hand.)"
-    ];
-  }
-
-  showDialogue(lines[Math.floor(Math.random()*lines.length)], 2200);
-}
-// Chat events
-let currentEvent=null;
-function scheduleChatEvent(){
-  if(G.chatPending || G.day > 12) return;
-
-  // longer, calmer pacing
-  const delay = 12000 + Math.random()*12000; // 12–24 seconds
-
-  G.chatPending = true;
-
-  setTimeout(()=>{
-    // wait until player is free (but don’t spam check)
-    const check = setInterval(()=>{
-      if(!G.isBusy){
-        document.getElementById('cb').style.display='block';
-        clearInterval(check);
-      }
-    }, 1500);
-  }, delay);
-}
-
-function openChatEvent(){
-  document.getElementById('cb').style.display='none';
-  G.chatPending=false;
-
-  // reset pool if needed
-  if (usedEvents.length >= CHAT_EVENTS.length) {
-    usedEvents = [];
-  }
-
-  let pool = CHAT_EVENTS.map((e,i)=>({e,i}))
-    .filter(x=>!usedEvents.includes(x.i));
-
-  const pick = pool[Math.floor(Math.random()*pool.length)];
-  usedEvents.push(pick.i);
-
-  currentEvent = pick.e;
-
-  // ✅ SHOW QUESTION IN DIALOGUE BOX
-  const d = document.getElementById('db');
-showDialogue(pick.e.q, 0, true);
-
-// stop any previous timers from hiding it
-if (htimer) clearTimeout(htimer);
-
-  // ✅ SHOW OPTIONS
-  const container = document.getElementById('choices');
-  container.innerHTML = '';
-
-  pick.e.opts.forEach(opt=>{
-    const btn = document.createElement('button');
-    btn.className = 'opt-btn';
-    btn.innerText = opt.t;
-    btn.onclick = ()=>resolveChoice(opt);
-    container.appendChild(btn);
-  });
-}
-
-function resolveChoice(opt){
-  document.getElementById('choices').innerHTML = '';
-
-  showDialogue(responses[opt.r]||"...",4000);
-
-  if(opt.bond)G.bond=Math.max(0,Math.min(100,G.bond+opt.bond));
-  if(opt.stress)G.stress=Math.max(0,Math.min(100,G.stress+opt.stress));
-  if(opt.corruption)G.corruption=Math.max(0,Math.min(100,G.corruption+opt.corruption));
-  if(opt.pamper)G.pamper++;
-  if(opt.neglect)G.neglect+=opt.neglect||1;
-
-  if(opt.r==='warm'||opt.r==='defend'||opt.r==='accept')showExpression('happy',3000);
-  if(opt.r==='absent'||opt.r==='silence'||opt.r==='harsh')showExpression('angry',3000);
-
-  scheduleChatEvent();
-  updateUI();
-}
-function updateConditionSprite(){
-    const muddy = document.getElementById('s-muddy');
-    const blood = document.getElementById('s-blood');
-
-    if (!muddy || !blood) return;
-
-    muddy.style.opacity = "0";
-    blood.style.opacity = "0";
-
-    if (G.condition === "muddy") muddy.style.opacity = "1";
-    if (G.condition === "blood") blood.style.opacity = "1";
-}
-function showConditionTap(){
-    const muddyTap = document.getElementById('s-muddy-tap');
-    const bloodTap = document.getElementById('s-blood-tap');
-
-    if (!muddyTap || !bloodTap) return;
-
-    // reset
-    muddyTap.style.opacity = "0";
-    bloodTap.style.opacity = "0";
-
-    if (G.condition === "muddy") {
-        muddyTap.style.opacity = "1";
-    }
-
-    if (G.condition === "blood") {
-        bloodTap.style.opacity = "1";
-    }
-
-    // auto return to normal condition sprite
-    setTimeout(()=>{
-        muddyTap.style.opacity = "0";
-        bloodTap.style.opacity = "0";
-    }, 2500);
-}
 const responses={
   pride:"...Thank you, father. I will not waste your faith in me.",
   quiet:"I understand. I will train harder.",
@@ -1090,201 +381,699 @@ const responses={
   absent:"..."
 };
 
-function closeModal(){document.getElementById('mo').classList.remove('open');}
+let usedEvents=[];
+let htimer=null;
+let headpatCount=0;
+let headpatTimeout=null;
+let lastPetTime=0;
 
-function advanceTime(amt){
-  G.ci+=amt;
-  if(G.ci>=4){G.ci=G.ci%4;G.day++;}
-  // natural stat drift
-  G.hunger=Math.min(100,G.hunger+8);
-  G.stress=Math.min(100,G.stress+5);
-  G.hygiene=Math.max(0,G.hygiene-8);
-  if(G.day>=7)G.corruption=Math.min(100,G.corruption+3);
-  if(G.day>12){triggerEnding();return;}
-  if(STORY[G.day]&&G.ci===0)showBanner(STORY[G.day].title,STORY[G.day].text);
-  if(G.day>=7)document.getElementById('jr').style.display='flex';
-  if(G.ci===0)scheduleLeave();
-  scheduleChatEvent();
-if(G.awayState){
-  G.stress += 2; // mild isolation pressure
-}
-  updateUI();
-  checkBadState();
-checkConfrontationTrigger();
-}
+// ------------------------------------------------------------------
+// DIALOGUE — FIX: "thought" class for away italics
+// ------------------------------------------------------------------
+function showDialogue(text, dur=3500, persistent=false, isThought=false){
+  const d=document.getElementById('db');
+  d.innerText=text;
+  d.classList.add('show');
+  if(isThought) d.classList.add('thought');
+  else d.classList.remove('thought');
 
-function checkConfrontationTrigger(){
-  if(
-    !G.confrontationTriggered &&
-    G.day >= 5 &&
-    G.neglect >= 8
-  ){
-    startConfrontation();
+  if(htimer) clearTimeout(htimer);
+  if(!persistent){
+    htimer=setTimeout(()=>{
+      d.classList.remove('show','thought');
+    }, dur);
   }
 }
-function startConfrontation(){
-  G.confrontationTriggered = true;
-  G.inConfrontation = true;
-  G.confrontStep = 0;
 
-  document.getElementById('vignette').classList.add('active');
-  
-  // Add this line to trigger the CSS override
-  document.getElementById('sc2').classList.add('is-confronting');
+// ------------------------------------------------------------------
+// AWAY THOUGHTS — FIX: removed G.isBusy check so they actually fire
+// ------------------------------------------------------------------
+const AWAY_THOUGHTS={
+  patrol:[
+    "...The wind is harsh on the eastern road.",
+    "I should not have hesitated back there.",
+    "Father expects results. I will not disappoint.",
+    "...How long has it been?",
+    "The terrain gets worse past the ridge."
+  ],
+  delegate:[
+    "...I hope I represented the kingdom well.",
+    "Did I speak too formally again?",
+    "They were watching closely.",
+    "...I wonder what father would have said.",
+    "A good king chooses his words carefully."
+  ],
+  sleep:[
+    "...I should have trained more today.",
+    "Tomorrow will demand more of me.",
+    "Father might call for me.",
+    "...I cannot quiet my thoughts.",
+    "Rest is also discipline. Father said that once."
+  ],
+  wash:[
+    "...The water is cold today.",
+    "I did not think he would notice.",
+    "...I should have come back cleaner."
+  ]
+};
 
-  showAngrySprite();
-  runConfrontationStep();
-}
-function showAngrySprite(){
-  document.getElementById('s-angry').style.opacity = "1";
-  document.getElementById('s-frustrated').style.opacity = "0";
-  // DO NOT hide 'sn' here, because 'sn' is his body!
-  // The CSS class .is-confronting already hides the 'normal' eyes/mouth.
-}
+// This interval fires while he's away — G.isBusy is TRUE at this point,
+// so the OLD code never ran. Fixed: only skip if awayState is null.
+setInterval(()=>{
+  if(!G.awayState) return;                 // not away → skip
+  if(G.inConfrontation) return;            // confrontation → skip
+  if(Math.random() > 0.4) return;          // 40% chance each tick
 
-function showFrustratedSprite(){
-  document.getElementById('s-angry').style.opacity = "0";
-  document.getElementById('s-frustrated').style.opacity = "1";
-}
-function runConfrontationStep(){
-  const steps = [
+  const pool=AWAY_THOUGHTS[G.awayState];
+  if(!pool) return;
+  showDialogue(pool[Math.floor(Math.random()*pool.length)], 3000, false, true);
+}, 7000);
 
-    {
-      q:"...Why now?",
-      opts:[
-        {t:"Because you are losing control.", effect:"bad"},
-        {t:"Because I should have spoken sooner.", effect:"good"},
-        {t:"This is not the time for emotions.", effect:"bad"}
-      ]
-    },
+// ------------------------------------------------------------------
+// CHAT BUBBLE — FIX: proper gated scheduling, gentle fade-in
+// ------------------------------------------------------------------
+let chatScheduledTimer=null;
 
-    {
-      q:"You were never there. Not when I needed you.",
-      opts:[
-        {t:"You are a prince. You must endure.", effect:"bad"},
-        {t:"I thought strength meant distance.", effect:"good"},
-        {t:"You are exaggerating.", effect:"bad"}
-      ]
-    },
+function scheduleChatEvent(){
+  // gate: don't schedule if already pending, game over, or active confrontation
+  if(G.chatPending || G.day > 12 || G.inConfrontation) return;
+  if(usedEvents.length >= CHAT_EVENTS.length) return; // all events used
 
-    {
-      q:"Tell me honestly... was I ever enough for you?",
-      opts:[
-        {t:"No. You needed to be better.", effect:"bad"},
-        {t:"You were always enough.", effect:"good"},
-        {t:"That is not the point.", effect:"bad"}
-      ]
+  G.chatPending=true;
+
+  // Clear any old timer
+  if(chatScheduledTimer) clearTimeout(chatScheduledTimer);
+
+  // Long delay: 20-40 real-world seconds so it never feels spammy
+  const delay=20000+Math.random()*20000;
+
+  chatScheduledTimer=setTimeout(()=>{
+    // Only show if player is free and not mid-confrontation
+    if(G.isBusy || G.inConfrontation){
+      // Not a good time — reschedule after a little while
+      G.chatPending=false;
+      setTimeout(scheduleChatEvent, 8000);
+      return;
     }
 
-  ];
+    // Show subtle "knock knock" hint first
+    const hint=document.getElementById('knock-hint');
+    hint.classList.add('show');
 
-  if(G.confrontStep >= steps.length){
-    endConfrontation();
-    return;
-  }
+    // Then fade bubble in 3 seconds later
+    setTimeout(()=>{
+      hint.classList.remove('show');
+      const cb=document.getElementById('cb');
+      cb.style.display='block';
+      cb.classList.add('visible');
+      // fade opacity in
+      requestAnimationFrame(()=>{
+        requestAnimationFrame(()=>cb.classList.add('fading-in'));
+      });
+    }, 3000);
 
-  const step = steps[G.confrontStep];
+  }, delay);
+}
 
-  document.getElementById('db').innerText = step.q;
-  document.getElementById('db').classList.add('show');
+function openChatEvent(){
+  // Hide bubble cleanly
+  const cb=document.getElementById('cb');
+  cb.classList.remove('fading-in','visible');
+  cb.style.opacity='0';
+  setTimeout(()=>{ cb.style.display='none'; cb.style.opacity=''; }, 800);
 
-  const container = document.getElementById('choices');
-  container.innerHTML = '';
+  G.chatPending=false;
+  if(chatScheduledTimer){ clearTimeout(chatScheduledTimer); chatScheduledTimer=null; }
 
-  step.opts.forEach(opt=>{
-    const btn = document.createElement('button');
-    btn.className = 'opt-btn';
-    btn.innerText = opt.t;
+  // Pick unused event
+  let pool=CHAT_EVENTS.map((e,i)=>({e,i})).filter(x=>!usedEvents.includes(x.i));
+  if(!pool.length){ usedEvents=[]; pool=CHAT_EVENTS.map((e,i)=>({e,i})); }
 
-    btn.onclick = ()=>{
-      handleConfrontationChoice(opt.effect);
-    };
+  const pick=pool[Math.floor(Math.random()*pool.length)];
+  usedEvents.push(pick.i);
 
+  showDialogue(pick.e.q, 0, true);
+
+  const container=document.getElementById('choices');
+  container.innerHTML='';
+  pick.e.opts.forEach(opt=>{
+    const btn=document.createElement('button');
+    btn.className='opt-btn';
+    btn.innerText=opt.t;
+    btn.onclick=()=>resolveChoice(opt);
     container.appendChild(btn);
   });
 }
-function interruptAction(){
-  if(!G.isBusy) return;
 
-  G.isBusy = false;
-  document.getElementById('td').style.display = 'none';
+function resolveChoice(opt){
+  document.getElementById('choices').innerHTML='';
+  document.getElementById('db').classList.remove('show','thought');
 
-  showDialogue("He returns early. \"Did you call for me, father?\"");
+  if(opt.bond) G.bond=Math.max(0,Math.min(100,G.bond+opt.bond));
+  if(opt.stress) G.stress=Math.max(0,Math.min(100,G.stress+opt.stress));
+  if(opt.corruption) G.corruption=Math.max(0,Math.min(100,G.corruption+opt.corruption));
+  if(opt.pamper) G.pamper++;
+  if(opt.neglect) G.neglect+=opt.neglect||1;
 
-  G.stress += 5;
-  G.bond -= 2;
+  setTimeout(()=>{
+    showDialogue(responses[opt.r]||"...", 4000);
+  }, 300);
 
+  if(opt.r==='warm'||opt.r==='defend'||opt.r==='accept') showExpression('happy',3000);
+  if(opt.r==='absent'||opt.r==='silence'||opt.r==='harsh') showExpression('angry',3000);
+
+  // Schedule next chat event only after a comfortable gap
+  setTimeout(scheduleChatEvent, 15000);
   updateUI();
 }
-function handleConfrontationChoice(effect){
 
-  document.getElementById('choices').innerHTML = '';
+// ------------------------------------------------------------------
+// SPRITE / EXPRESSION
+// ------------------------------------------------------------------
+function showExpression(type,dur){
+  const c=document.getElementById('sc2');
+  c.classList.remove('is-happy','is-angry');
+  if(type==='happy') c.classList.add('is-happy');
+  else if(type==='angry') c.classList.add('is-angry');
+  setTimeout(()=>c.classList.remove('is-happy','is-angry'), dur||2500);
+}
 
-  if(effect === "bad"){
-    G.bond -= 15;
-    G.stress += 10;
-  }else{
-    G.bond += 10;
-    G.stress -= 8;
+function updateAwayVisual(){
+  const c=document.getElementById('sc2');
+  if(G.awayState){
+    c.style.opacity="0.35";
+    c.style.filter="grayscale(0.4)";
+  } else {
+    c.style.opacity="1";
+    c.style.filter="none";
+  }
+}
+
+function updateConditionSprite(){
+  document.getElementById('s-muddy').style.opacity="0";
+  document.getElementById('s-blood').style.opacity="0";
+  if(G.condition==="muddy") document.getElementById('s-muddy').style.opacity="1";
+  if(G.condition==="blood") document.getElementById('s-blood').style.opacity="1";
+}
+
+function showConditionTap(){
+  const mt=document.getElementById('s-muddy-tap');
+  const bt=document.getElementById('s-blood-tap');
+  mt.style.opacity="0"; bt.style.opacity="0";
+  if(G.condition==="muddy") mt.style.opacity="1";
+  if(G.condition==="blood") bt.style.opacity="1";
+  setTimeout(()=>{ mt.style.opacity="0"; bt.style.opacity="0"; }, 2500);
+}
+
+// ------------------------------------------------------------------
+// PET / TOUCH
+// ------------------------------------------------------------------
+function petPrince(){
+  if(G.isBusy) return;
+
+  if(G.condition==="blood"){
+    G.ignoredCondition=true;
+    showConditionTap();
+    const lines=["...It's nothing, father.","A minor injury. It does not affect my duty.","Please do not concern yourself."];
+    showDialogue(lines[Math.floor(Math.random()*lines.length)]);
+    G.stress=Math.min(100,G.stress+2);
+    G.bond=Math.max(0,G.bond-1);
+    updateUI(); return;
   }
 
-  // sprite shift (emotional escalation)
-  if(G.confrontStep === 1){
-    showFrustratedSprite();
+  if(G.condition==="muddy"){
+    G.ignoredCondition=true;
+    showConditionTap();
+    const lines=["Apologies, father. I will clean myself shortly.","The terrain was difficult today.","...I will present myself better next time."];
+    showDialogue(lines[Math.floor(Math.random()*lines.length)]);
+    G.stress=Math.max(0,G.stress+1);
+    G.bond=Math.max(0,G.bond-1);
+    updateUI(); return;
   }
 
-  // BAD END IMMEDIATE TRIGGER
-  if(G.bond <= 20){
-    triggerBadEndingImmediate();
+  if(G.neglect>=8){
+    const lines=["...Yes, father.","Do you require something.","...I am available.","(He straightens immediately.)"];
+    showExpression('angry',2500);
+    showDialogue(lines[Math.floor(Math.random()*lines.length)]);
     return;
   }
 
-  G.confrontStep++;
-  setTimeout(runConfrontationStep, 1200);
-
+  showExpression('happy',2500);
+  const lines=["Good morning, father.","Do you require something?","I will do better today.","I trained harder last night.","...I hope I did not disappoint you.","Is there an order for me?","Father.","I am ready.","The castle is secured, father.","...Yes?"];
+  showDialogue(lines[Math.floor(Math.random()*lines.length)]);
   updateUI();
 }
+
+// ------------------------------------------------------------------
+// HEADPAT
+// ------------------------------------------------------------------
+function handlePet(e){
+  if(!G.headpatMode||G.isBusy) return;
+  const prince=document.getElementById('pa');
+  const rect=prince.getBoundingClientRect();
+  const headTop=rect.top;
+  const headBottom=rect.top+rect.height*0.35;
+  const headLeft=rect.left+rect.width*0.25;
+  const headRight=rect.left+rect.width*0.75;
+  const x=e.clientX, y=e.clientY;
+  const isOnHead=(x>=headLeft&&x<=headRight&&y>=headTop&&y<=headBottom);
+  document.body.style.cursor=isOnHead?"grabbing":"grab";
+  if(!isOnHead) return;
+  const now=Date.now();
+  if(now-lastPetTime<250) return;
+  lastPetTime=now;
+  if(headpatTimeout) clearTimeout(headpatTimeout);
+  const c=document.getElementById('sc2');
+  c.classList.remove('is-angry');
+  c.classList.add('is-happy');
+  headpatTimeout=setTimeout(()=>c.classList.remove('is-happy'), 500);
+  triggerHeadpatDialogue();
+  G.stress=Math.max(0,G.stress-2);
+  G.bond=Math.min(100,G.bond+1);
+  updateUI();
+}
+
+function triggerHeadpatDialogue(){
+  headpatCount++;
+  let lines=[];
+  if(G.bond<40) lines=["...Father?","You do not have to do this.","...I am not a child."];
+  else if(G.bond<70) lines=["...This is... nice.","You rarely do this.","...I will remember this."];
+  else lines=["...Stay a little longer.","I used to think you would never...","...Thank you, father."];
+  if(headpatCount>8){
+    const c=document.getElementById('sc2');
+    c.classList.remove('is-happy');
+    c.classList.add('is-angry');
+    setTimeout(()=>c.classList.remove('is-angry'), 1200);
+    lines=["...Father, that is enough.","You will ruin your image like this.","...People will see."];
+  }
+  if(headpatCount>14) lines=["...","(He leans slightly into your hand.)"];
+  showDialogue(lines[Math.floor(Math.random()*lines.length)], 2200);
+}
+
+function exitHeadpat(){
+  G.headpatMode=false;
+  document.body.style.cursor="default";
+  document.getElementById('exit-headpat').style.display="none";
+  headpatCount=0;
+  if(headpatTimeout) clearTimeout(headpatTimeout);
+  const c=document.getElementById('sc2');
+  c.classList.remove('is-happy','is-angry');
+  showDialogue("...Ah—", 2000);
+}
+
+// ------------------------------------------------------------------
+// FEED / ACTIONS
+// ------------------------------------------------------------------
+function openFeedMenu(){
+  if(G.isBusy) return;
+  closeAllMenus();
+  if(G.hunger<=20){ showDialogue("I am not hungry, father."); return; }
+  G.hunger=Math.max(0,G.hunger-25);
+  showExpression('happy',2500);
+  showDialogue("Thank you for the meal, father.");
+  updateUI();
+}
+
+function toggleTalkMenu(){
+  if(G.isBusy) return;
+  document.getElementById('tsm').classList.toggle('open');
+  document.getElementById('gsm').classList.remove('open');
+}
+function closeTalkMenu(){ document.getElementById('tsm').classList.remove('open'); }
+function toggleGiftMenu(){
+  if(G.isBusy) return;
+  document.getElementById('gsm').classList.toggle('open');
+  document.getElementById('tsm').classList.remove('open');
+}
+function closeGiftMenu(){ document.getElementById('gsm').classList.remove('open'); }
+function closeAllMenus(){ closeTalkMenu(); closeGiftMenu(); }
+
+function orderPrince(task){
+  if(G.isBusy) return;
+  closeAllMenus();
+
+  const taskData={
+    patrol:{
+      msg:"Yes, father. I will patrol the eastern border.",
+      ret:["He returns from patrol, dust on his armor.","He comes back with a cut on his cheek — nothing serious.","He returns quietly. Something in his eyes looks distant."],
+      stress:-5,hygiene:-20,hunger:-15
+    },
+    sleep:{
+      msg:"Understood. I will rest.",
+      ret:["He returns looking more rested.","He slept, but woke early again."],
+      stress:-15,hygiene:0,hunger:-5
+    },
+    delegate:{
+      msg:"I will represent the kingdom with honor, father.",
+      ret:["The delegation went smoothly, he reports.","He returns with a sealed letter from the southern province."],
+      stress:-8,hygiene:-5,hunger:-20
+    },
+    wash:{
+      msg: G.autoHandled ? "...I have already done so." : "...Of course.",
+      ret: G.autoHandled ? ["He is already clean. He avoids your gaze."] : ["He returns looking cleaner, though still stiff."],
+      stress: G.autoHandled ? 5 : 0,
+      hygiene: 100,
+      hunger: 0
+    }
+  };
+
+  const td=taskData[task];
+  showDialogue(td.msg, 4000);
+  G.isBusy=true;
+  G.awayState=task;
+  updateAwayVisual();
+
+  document.getElementById('td').style.display='block';
+  document.getElementById('interrupt-btn').style.display='block';
+
+  let t=Math.floor(20+Math.random()*15);
+  document.getElementById('sec').innerText=t;
+
+  const iv=setInterval(()=>{
+    // mid-action event hook
+    if((t===15||t===8) && Math.random()<0.45){
+      triggerMidActionEvent(task);
+    }
+
+    t--;
+    document.getElementById('sec').innerText=t;
+
+    if(t<=0){
+      clearInterval(iv);
+      G.isBusy=false;
+      G.awayState=null;
+      updateAwayVisual();
+      document.getElementById('td').style.display='none';
+      document.getElementById('interrupt-btn').style.display='none';
+
+      // patrol return conditions
+      if(task==="patrol"){
+        const roll=Math.random();
+        if(roll<0.33){
+          G.condition="muddy";
+          updateConditionSprite();
+          showDialogue("He returns covered in mud. \"The terrain was rough, father.\"");
+          G.hygiene=Math.max(0,G.hygiene-25);
+        } else if(roll<0.66){
+          G.condition="blood";
+          updateConditionSprite();
+          showDialogue("There's blood on his sleeve. \"It's nothing.\"");
+          G.stress=Math.min(100,G.stress+10);
+          G.hygiene=Math.max(0,G.hygiene-45);
+        } else {
+          const ret=td.ret[Math.floor(Math.random()*td.ret.length)];
+          showDialogue(ret, 4000);
+        }
+        // bond-based return flavour
+        setTimeout(()=>{
+          if(G.bond>70) showDialogue("He reports in detail, almost eager for your approval.", 3500, false, true);
+          else if(G.neglect>7) showDialogue("He gives a short report. No eye contact.", 3500, false, true);
+        }, 5000);
+      } else {
+        const ret=td.ret[Math.floor(Math.random()*td.ret.length)];
+        showDialogue(ret, 4000);
+      }
+
+      if(task==="wash"){
+        G.condition="normal";
+        G.autoHandled=false;
+        G.ignoredCondition=false;
+        document.getElementById('s-blood').style.opacity="0";
+        document.getElementById('s-muddy').style.opacity="0";
+        document.getElementById('s-blood-tap').style.opacity="0";
+        document.getElementById('s-muddy-tap').style.opacity="0";
+        updateConditionSprite();
+      }
+
+      if(task==="sleep"&&G.ignoredCondition&&(G.condition==="muddy"||G.condition==="blood")){
+        G.autoHandled=true;
+        G.ignoredCondition=false;
+        setTimeout(()=>{
+          showDialogue("...I have already taken care of it myself, father.", 4000);
+          G.bond=Math.max(0,G.bond-12);
+          G.stress=Math.min(100,G.stress+10);
+          G.condition="normal";
+          updateConditionSprite();
+          updateUI();
+        }, 1200);
+      }
+
+      G.stress=Math.max(0,Math.min(100,G.stress+td.stress));
+      G.hygiene=Math.max(0,Math.min(100,G.hygiene+td.hygiene));
+      G.hunger=Math.max(0,Math.min(100,G.hunger+td.hunger));
+      advanceTime(2);
+    }
+  }, 1000);
+}
+
+function interruptAction(){
+  if(!G.isBusy) return;
+  G.isBusy=false;
+  G.awayState=null;
+  updateAwayVisual();
+  document.getElementById('td').style.display='none';
+  document.getElementById('interrupt-btn').style.display='none';
+  showDialogue("He returns early. \"Did you call for me, father?\"");
+  G.stress+=5;
+  G.bond-=2;
+  updateUI();
+}
+
+function triggerMidActionEvent(task){
+  if(!G.isBusy) return;
+  const events={
+    patrol:[
+      {text:"He encounters hostile scouts. What should he do?",choices:[{t:"Engage them",stress:10,bond:2},{t:"Observe quietly",stress:-2,bond:1},{t:"Retreat",stress:-5,bond:-2}]},
+      {text:"A villager asks for help mid-patrol.",choices:[{t:"Help them",bond:5,stress:2},{t:"Stay focused on mission",bond:-2,stress:-2}]}
+    ]
+  };
+  const pool=events[task];
+  if(!pool) return;
+  const e=pool[Math.floor(Math.random()*pool.length)];
+  G.isBusy=false;
+  const container=document.getElementById('choices');
+  container.innerHTML='';
+  showDialogue(e.text, 0, true);
+  e.choices.forEach(choice=>{
+    const btn=document.createElement('button');
+    btn.className='opt-btn';
+    btn.innerText=choice.t;
+    btn.onclick=()=>{
+      if(choice.stress) G.stress=Math.max(0,Math.min(100,G.stress+choice.stress));
+      if(choice.bond) G.bond=Math.max(0,Math.min(100,G.bond+choice.bond));
+      container.innerHTML='';
+      document.getElementById('db').classList.remove('show','thought');
+      G.isBusy=false;
+      updateUI();
+    };
+    container.appendChild(btn);
+  });
+}
+
+function praiseScold(type){
+  closeAllMenus();
+  if(type==='praise'){
+    G.praisesToday++;G.pamper++;
+    G.bond=Math.min(100,G.bond+8);
+    G.stress=Math.max(0,G.stress-10);
+    if(G.praisesToday>=3){
+      showExpression('happy',2000);
+      showDialogue("...Thank you, father. Though praise sits strangely on me.", 3500);
+    } else {
+      showExpression('happy',2000);
+      showDialogue("...I will not disappoint you, father.", 3000);
+    }
+  } else {
+    G.scoldsToday++;G.neglect++;
+    G.bond=Math.max(0,G.bond-10);
+    G.stress=Math.min(100,G.stress+15);
+    showExpression('angry',2500);
+    const lines=["Yes, father.","I understand.","...I am sorry.","I will correct it."];
+    showDialogue(lines[Math.floor(Math.random()*lines.length)], 3000);
+  }
+  updateUI();
+}
+
+function giveGift(type){
+  closeAllMenus();
+  if(type==='headpat'){
+    G.headpatMode=true;
+    document.body.style.cursor="grab";
+    document.getElementById('exit-headpat').style.display="block";
+    showDialogue("...F-father?", 2500);
+    return;
+  }
+  const gifts={
+    sword:{msg:"A training sword? I will use it well.",stress:-8,bond:8,pamper:1},
+    book:{msg:"Thank you. I will study it tonight.",stress:-5,bond:6},
+    food:{msg:"Cake? ...Thank you.",stress:-10,bond:8,pamper:1}
+  };
+  const g=gifts[type];
+  if(!g) return;
+  showExpression('happy',2500);
+  showDialogue(g.msg, 3000);
+  G.stress=Math.max(0,G.stress+g.stress);
+  G.bond=Math.min(100,G.bond+g.bond);
+  if(g.pamper) G.pamper++;
+  updateUI();
+}
+
+// ------------------------------------------------------------------
+// IDLE LINES — only when truly idle
+// ------------------------------------------------------------------
+setInterval(()=>{
+  if(G.isBusy||G.awayState||G.headpatMode||G.inConfrontation) return;
+  if(Math.random()>0.18) return;
+  const idleLines=[
+    "...He adjusts his grip on the sword.",
+    "He glances at you briefly.",
+    "He seems lost in thought.",
+    "He stands at ease, waiting.",
+    "...The wind moves his hair.",
+    "He exhales slowly.",
+    "He watches the door.",
+    "...His jaw tightens for a moment."
+  ];
+  showDialogue(idleLines[Math.floor(Math.random()*idleLines.length)], 2500, false, true);
+}, 12000);
+
+// ------------------------------------------------------------------
+// CONFRONTATION
+// ------------------------------------------------------------------
+function checkConfrontationTrigger(){
+  if(!G.confrontationTriggered && G.day>=5 && G.neglect>=8){
+    startConfrontation();
+  }
+}
+
+function startConfrontation(){
+  G.confrontationTriggered=true;
+  G.inConfrontation=true;
+  G.confrontStep=0;
+  document.getElementById('vignette').classList.add('active');
+  document.getElementById('s-angry').style.opacity="1";
+  document.getElementById('s-frustrated').style.opacity="0";
+  setTimeout(runConfrontationStep, 800);
+}
+
+function showAngrySprite(){ document.getElementById('s-angry').style.opacity="1"; document.getElementById('s-frustrated').style.opacity="0"; }
+function showFrustratedSprite(){ document.getElementById('s-angry').style.opacity="0"; document.getElementById('s-frustrated').style.opacity="1"; }
+
+function runConfrontationStep(){
+  const steps=[
+    {q:"...Why now?",opts:[{t:"Because you are losing control.",effect:"bad"},{t:"Because I should have spoken sooner.",effect:"good"},{t:"This is not the time for emotions.",effect:"bad"}]},
+    {q:"You were never there. Not when I needed you.",opts:[{t:"You are a prince. You must endure.",effect:"bad"},{t:"I thought strength meant distance.",effect:"good"},{t:"You are exaggerating.",effect:"bad"}]},
+    {q:"Tell me honestly... was I ever enough for you?",opts:[{t:"No. You needed to be better.",effect:"bad"},{t:"You were always enough.",effect:"good"},{t:"That is not the point.",effect:"bad"}]}
+  ];
+  if(G.confrontStep>=steps.length){ endConfrontation(); return; }
+  const step=steps[G.confrontStep];
+  showDialogue(step.q, 0, true);
+  const container=document.getElementById('choices');
+  container.innerHTML='';
+  step.opts.forEach(opt=>{
+    const btn=document.createElement('button');
+    btn.className='opt-btn';
+    btn.innerText=opt.t;
+    btn.onclick=()=>handleConfrontationChoice(opt.effect);
+    container.appendChild(btn);
+  });
+}
+
+function handleConfrontationChoice(effect){
+  document.getElementById('choices').innerHTML='';
+  if(effect==="bad"){ G.bond-=15; G.stress+=10; }
+  else { G.bond+=10; G.stress-=8; }
+  if(G.confrontStep===1) showFrustratedSprite();
+  if(G.bond<=20){ triggerBadEndingImmediate(); return; }
+  G.confrontStep++;
+  setTimeout(runConfrontationStep, 1200);
+  updateUI();
+}
+
 function triggerBadEndingImmediate(){
   document.getElementById('vignette').classList.remove('active');
-  G.inConfrontation = false;
-
-  document.getElementById('et').innerText = "He turns away.";
-  document.getElementById('ep').innerText =
-  "He stops listening. Not because he cannot hear you — but because he has learned there is nothing to hear. The sword will find him soon enough.";
-
-  document.getElementById('ec').className = "end-bad";
+  G.inConfrontation=false;
+  document.getElementById('et').innerText="He turns away.";
+  document.getElementById('ep').innerText="He stops listening. Not because he cannot hear you — but because he has learned there is nothing to hear. The sword will find him soon enough.";
+  document.getElementById('ec').className="end-bad";
   document.getElementById('es').classList.add('open');
 }
+
 function endConfrontation(){
   document.getElementById('vignette').classList.remove('active');
-  document.getElementById('sc2').classList.remove('is-confronting'); // Remove override
-  G.inConfrontation = false;
-
-  // Reset opacity of confrontation layers
-  document.getElementById('s-angry').style.opacity = "0";
-  document.getElementById('s-frustrated').style.opacity = "0";
-
+  G.inConfrontation=false;
+  document.getElementById('choices').innerHTML='';
+  document.getElementById('db').classList.remove('show','thought');
+  document.getElementById('s-angry').style.opacity="0";
+  document.getElementById('s-frustrated').style.opacity="0";
   showDialogue("...I understand. I will try to do better.", 4000);
 }
+
+// ------------------------------------------------------------------
+// TIME & STATE
+// ------------------------------------------------------------------
+function advanceTime(amt){
+  G.ci+=amt;
+  if(G.ci>=4){ G.ci=G.ci%4; G.day++; }
+  G.hunger=Math.min(100,G.hunger+8);
+  G.stress=Math.min(100,G.stress+5);
+  G.hygiene=Math.max(0,G.hygiene-8);
+  if(G.day>=7) G.corruption=Math.min(100,G.corruption+3);
+  if(G.day>12){ triggerEnding(); return; }
+  if(STORY[G.day]&&G.ci===0) showBanner(STORY[G.day].title,STORY[G.day].text);
+  if(G.day>=7) document.getElementById('jr').style.display='flex';
+  if(G.ci===0) scheduleLeave();
+  checkBadState();
+  checkConfrontationTrigger();
+  updateUI();
+}
+
 function checkBadState(){
-  if(G.stress>=90){showDialogue("Father... I am struggling.",4000);}
-  if(G.hunger>=95){showDialogue("...I am hungry.",3000);}
-  if(G.corruption>=80&&G.day>=7){showDialogue("...I will seek greater strength up at Bad Lands. I can feel it.",4500);}
+  if(G.stress>=90) showDialogue("Father... I am struggling.", 4000);
+  if(G.hunger>=95) showDialogue("...I am hungry.", 3000);
+  if(G.corruption>=80&&G.day>=7) showDialogue("...I will seek greater strength up at Bad Lands. I can feel it.", 4500);
 }
 
 function scheduleLeave(){
-  if(Math.random()>0.65||G.isBusy)return;
+  if(Math.random()>0.65||G.isBusy) return;
   setTimeout(()=>{
     if(!G.isBusy){
       const leaves=["The Prince has gone to mentor Caramel Arrow.","He has left for a personal village inspection.","He slipped out early for morning training alone."];
-      showDialogue(leaves[Math.floor(Math.random()*leaves.length)],5000);
+      showDialogue(leaves[Math.floor(Math.random()*leaves.length)], 5000);
       G.hygiene=Math.max(0,G.hygiene-10);
       G.hunger=Math.min(100,G.hunger+10);
       updateUI();
     }
-  },12000);
+  }, 12000);
 }
 
+// ------------------------------------------------------------------
+// ENDINGS
+// ------------------------------------------------------------------
+function triggerEnding(){
+  let title,text,cls;
+  if(G.neglect>=8||G.bond<25||(G.corruption>=70&&G.bond<40)){
+    title="Dark Choco takes the sword.";
+    text="On the thirteenth morning, he took the Strawberry Jam Sword. Your son is gone. You were given twelve days — and he walked the same path anyway. Dark Cacao stands alone in the throne room, chest injured. He always knew what he should have been. He never was.";
+    cls='end-bad';
+  } else if(G.pamper>=10&&G.bond>=80&&G.stress<=20){
+    title="A Son Too Sheltered.";
+    text="Dark Choco remains. But when trials come — and they always do — he is unprepared. A king who was given only warmth and no edge. He loves you, father. But the kingdom will challenge what love alone cannot build. A bittersweet ending — you were kind, but forgot to be a king.";
+    cls='end-mid';
+  } else {
+    title="What it means to be a Dad.";
+    text="On the thirteenth morning, Dark Choco stands at your side as he always should have. He is not soft. He is not broken. He is a prince who was seen — truly seen — by his father. Dark Cacao bent, just enough, without breaking. And that was everything.";
+    cls='end-good';
+  }
+  document.getElementById('et').innerText=title;
+  document.getElementById('ep').innerText=text;
+  document.getElementById('ec').className=cls;
+  document.getElementById('es').classList.add('open');
+}
+
+// ------------------------------------------------------------------
+// BANNERS / NOTES / SETTINGS
+// ------------------------------------------------------------------
 function showBanner(title,text){
   document.getElementById('sbt').innerText=title;
   document.getElementById('sbp').innerText=text;
@@ -1292,50 +1081,66 @@ function showBanner(title,text){
 }
 function closeBanner(){
   document.getElementById('sb2').classList.remove('open');
-  scheduleChatEvent();
+  // Schedule chat only after banner is closed, with a comfortable gap
+  setTimeout(scheduleChatEvent, 8000);
 }
 
 function showNotes(){
   const lines=[
     `Bond: ${Math.round(G.bond)}/100`,
-    `Times praised: ${G.pamper}`,
-    `Times neglected: ${G.neglect}`,
+    `Pampered: ${G.pamper} times`,
+    `Neglected: ${G.neglect} times`,
     `Stress: ${Math.round(G.stress)}%`,
     G.corruption>0?`??? meter: ${Math.round(G.corruption)}%`:''
   ].filter(Boolean).join('\n');
   alert("Your journal:\n\n"+lines);
 }
-function openSettings(){
-  document.getElementById('settings-modal').style.display = 'flex';
+function openSettings(){ document.getElementById('settings-modal').style.display='flex'; }
+function closeSettings(){ document.getElementById('settings-modal').style.display='none'; }
+function closeModal(){ document.getElementById('mo').classList.remove('open'); }
+
+// ------------------------------------------------------------------
+// SAVE / LOAD
+// ------------------------------------------------------------------
+function saveGame(){
+  try{
+    localStorage.setItem("princeSave", JSON.stringify({G,usedEvents}));
+  }catch(e){}
+}
+function loadGame(){
+  try{
+    const data=localStorage.getItem("princeSave");
+    if(!data) return false;
+    const save=JSON.parse(data);
+    G=save.G;
+    usedEvents=save.usedEvents||[];
+    updateUI();
+    updateConditionSprite();
+    return true;
+  }catch(e){ return false; }
+}
+function resetGame(){
+  try{ localStorage.removeItem("princeSave"); }catch(e){}
+  location.reload();
 }
 
-function closeSettings(){
-  document.getElementById('settings-modal').style.display = 'none';
-}
-function triggerEnding(){
-  const e = document.getElementById('ec');
-  let title, text, cls;
-
-  // Prioritize the Sword/Corruption first
-  if(G.corruption >= 100 || G.neglect >= 8 || G.bond < 25) {
-       title = "Dark Choco takes the sword.";
-    text="On the thirteenth morning, he took the strawberry jam sword. Your son is gone. You were given twelve days — and he walked the same path anyway. Dark Cacao stands alone in the throne room, chest injured. He always knew what he should have been. He never was.";
-    cls='end-bad';
-  }else if(G.pamper>=10&&G.bond>=80&&G.stress<=20){
-    title="A Son Too Sheltered.";
-    text="Dark Choco remains. But when trials come — and they always do — he is unprepared. A king who was given only warmth and no edge. He loves you, father. But the kingdom will challenge what love alone cannot build. A bittersweet ending — you were kind, but forgot to be a king.";
-    cls='end-mid';
-  }else{
-    title="What it means to be a Dad.";
-    text="On the thirteenth morning, Dark Choco stands at your side as he always should have. He is not soft. He is not broken. He is a prince who was seen — truly seen — by his father. Dark Cacao bent, just enough, without breaking. And that was everything.";
-    cls='end-good';
-  }
-  document.getElementById('et').innerText=title;
-  document.getElementById('ep').innerText=text;
-  e.className=cls;
-  document.getElementById('es').classList.add('open');
+function showContinuePrompt(){
+  const modal=document.getElementById('mo');
+  document.getElementById('mh').innerText="Continue your journey?";
+  document.getElementById('mb').innerText="A previous save was found.";
+  const opts=document.getElementById('mopts');
+  opts.innerHTML='';
+  const cont=document.createElement('button'); cont.className='opt-btn'; cont.innerText="Continue";
+  cont.onclick=()=>{ loadGame(); modal.classList.remove('open'); };
+  const newg=document.createElement('button'); newg.className='opt-btn'; newg.innerText="Start New";
+  newg.onclick=()=>resetGame();
+  opts.appendChild(cont); opts.appendChild(newg);
+  modal.classList.add('open');
 }
 
+// ------------------------------------------------------------------
+// UI UPDATE
+// ------------------------------------------------------------------
 function updateUI(){
   document.getElementById('cd').innerText=CYCLES[G.ci];
   document.getElementById('ti').innerText=ICONS[G.ci];
@@ -1344,69 +1149,22 @@ function updateUI(){
   document.getElementById('hunger-bar').style.width=G.hunger+'%';
   document.getElementById('hygiene-bar').style.width=G.hygiene+'%';
   document.getElementById('jam-bar').style.width=G.corruption+'%';
-document.getElementById('jam-bar').style.width = G.corruption + '%';
+  document.getElementById('stress-bar').style.background=G.stress>=70?'#6a0000':'#9e1b32';
+  document.getElementById('hunger-bar').style.background=G.hunger>=80?'#c06010':'#4ead52';
+  updateAwayVisual();
+  saveGame();
+}
 
-  // Add this check for the instant Bad Ending:
-  if(G.corruption >= 100) {
-    triggerEnding(); 
-    return;
+// ------------------------------------------------------------------
+// INIT
+// ------------------------------------------------------------------
+window.onload=function(){
+  const hasSave=localStorage.getItem("princeSave");
+  if(hasSave) showContinuePrompt();
+  else {
+    showBanner(STORY[1].title,STORY[1].text);
+    updateUI();
   }
-  // color stress bar warning
-  const sb=document.getElementById('stress-bar');
-  sb.style.background=G.stress>=70?'#6a0000':'#9e1b32';
-  // hunger bar
-  const hb=document.getElementById('hunger-bar');
-  hb.style.background=G.hunger>=80?'#c06010':'#4ead52';
-updateEmotionalState();
-saveGame();
-updateAwayVisual();
-}
-function showContinuePrompt(){
-  const modal = document.getElementById('mo');
-  const title = document.getElementById('mh');
-  const body = document.getElementById('mb');
-  const opts = document.getElementById('mopts');
-
-  title.innerText = "Continue your journey?";
-  body.innerText = "A previous save was found.";
-
-  opts.innerHTML = '';
-
-  const contBtn = document.createElement('button');
-  contBtn.className = 'opt-btn';
-  contBtn.innerText = "Continue";
-  contBtn.onclick = ()=>{
-    loadGame();
-    modal.classList.remove('open');
-  };
-
-  const newBtn = document.createElement('button');
-  newBtn.className = 'opt-btn';
-  newBtn.innerText = "Start New";
-  newBtn.onclick = ()=>{
-    resetGame();
-  };
-
-  opts.appendChild(contBtn);
-  opts.appendChild(newBtn);
-
-  modal.classList.add('open');
-}
-function startNewGame(){
-  showBanner(STORY[1].title, STORY[1].text);
-  updateUI();
-}
-// Initial story
-window.onload = function(){
-
-  const hasSave = localStorage.getItem("princeSave");
-
-  if(hasSave){
-    showContinuePrompt();
-  } else {
-    startNewGame();
-  }
-
 };
 </script>
 </body>
