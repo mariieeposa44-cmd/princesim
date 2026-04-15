@@ -153,6 +153,32 @@
   #vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle, transparent 55%, rgba(0,0,0,0.75) 100%);z-index:45;opacity:0;transition:opacity .4s}
   #vignette.active{opacity:1}
 
+  /* ── Dynamic sky background ── */
+  #gc{transition:background-color 1.2s ease, border-color .8s ease}
+  #sky-layer{position:absolute;inset:0;pointer-events:none;z-index:1;transition:opacity 1.2s ease}
+
+  /* time-of-day canvas tints applied via JS classes on #gc */
+  #gc.time-morning{background-color:#fdf6ee !important;border-color:#c8a060}
+  #gc.time-afternoon{background-color:#eef5ff !important;border-color:#7ab0e0}
+  #gc.time-evening{background-color:#2a1a2e !important;border-color:#7b4f9e}
+  #gc.time-night{background-color:#0d0d1f !important;border-color:#3a3a6a}
+
+  /* dot grid changes with time */
+  #gc.time-morning{background-image:radial-gradient(#d4b87a 1px,transparent 0) !important;background-size:38px 38px !important}
+  #gc.time-afternoon{background-image:radial-gradient(#a8c8ee 1px,transparent 0) !important;background-size:38px 38px !important}
+  #gc.time-evening{background-image:radial-gradient(#5a3a6a 1px,transparent 0) !important;background-size:38px 38px !important}
+  #gc.time-night{background-image:radial-gradient(#252550 1px,transparent 0) !important;background-size:38px 38px !important}
+
+  /* text readability at night/evening */
+  #gc.time-evening #ts, #gc.time-night #ts{background:#2a1a3e;border-color:#7b4f9e;color:#d0b0f0}
+  #gc.time-evening #day-disp, #gc.time-night #day-disp{background:#1a1228;border-color:#7b4f9e;color:#c8a0e8}
+  #gc.time-evening .bl, #gc.time-night .bl{color:#c0a0d0}
+  #gc.time-night #pa{filter:brightness(0.72) saturate(0.85)}
+
+  /* night dim overlay on sprite */
+  #night-dim{position:absolute;inset:0;pointer-events:none;background:rgba(10,5,40,0);z-index:6;transition:background .8s ease}
+  #gc.time-night #night-dim{background:rgba(10,5,40,0.45)}
+
   #interrupt-btn{
     position:absolute;
     bottom:14px;
@@ -173,7 +199,9 @@
 </style>
 </head>
 <body>
+<audio id="bgm" loop><source src="WORLD_OST.mp3" type="audio/mpeg"></audio>
 <div id="gc">
+  <div id="night-dim"></div>
   <div id="ts"><span id="ti">☀️</span><span id="cd">MORNING</span></div>
   <div id="day-disp">Day <span id="dd">1</span> / 12</div>
   <div id="exit-headpat" onclick="exitHeadpat()">✖ End headpat</div>
@@ -201,7 +229,7 @@
     </div>
   </div>
 
-  <div id="db">Good morning, father.</div>
+  <div id="db"></div>
 
   <!-- Subtle knock-knock hint before the bubble appears -->
   <div id="knock-hint">...knock knock</div>
@@ -275,6 +303,11 @@
       This is a fan-made project. The character Dark Choco Cookie belongs to Devsisters.<br>
       No official rights claimed. Created for personal, non-commercial use only.
     </p>
+	  <div style="margin: 20px 0; padding: 10px; background: #fff; border: 2px solid #1a1a1a; border-radius: 12px;">
+  <label style="display:block; font-weight:bold; margin-bottom:5px;">Master Volume</label>
+  <input type="range" id="volume-slider" min="0" max="1" step="0.05" value="0.5" 
+         style="width:100%; cursor:pointer;" oninput="adjustVolume(this.value)">
+</div>
     <br>
     <button class="tsm-btn" onclick="resetGame()" style="color:#8a0000;border-color:#8a0000;">🗑 Reset Save & Start Over</button>
   </div>
@@ -314,7 +347,8 @@ let G={
   awayState:null,
   confrontationTriggered:false,
   inConfrontation:false,
-  confrontStep:0
+  confrontStep:0,
+	volume: 0.5,
 };
 
 const STORY={
@@ -619,7 +653,7 @@ function petPrince(){
   }
 
   showExpression('happy',2500);
-  const lines=["Good morning, father.","Do you require something?","I will do better today.","I trained harder last night.","...I hope I did not disappoint you.","Is there an order for me?","Father.","I am ready.","The castle is secured, father.","...Yes?"];
+  const lines=[getTimeGreeting(),"Do you require something?","I will do better today.","I trained harder last night.","...I hope I did not disappoint you.","Is there an order for me?","Father.","I am ready.","The castle is secured, father.","...Yes?"];
   showDialogue(lines[Math.floor(Math.random()*lines.length)]);
   updateUI();
 }
@@ -707,10 +741,29 @@ function toggleGiftMenu(){
 }
 function closeGiftMenu(){ document.getElementById('gsm').classList.remove('open'); }
 function closeAllMenus(){ closeTalkMenu(); closeGiftMenu(); }
-
+// Add this to your functions list
+function adjustVolume(val) {
+  const audio = document.getElementById('bgm');
+  if (audio) {
+    audio.volume = val;
+    G.volume = val; // Save volume preference to game state
+    saveGame(); //
+  }
+}
 function orderPrince(task){
   if(G.isBusy) return;
   closeAllMenus();
+
+  // Refuse rest in the morning — it's too early to sleep
+  if(task === "sleep" && G.ci === 0){
+    const lines = [
+      "It is morning, father. There is no need for rest yet.",
+      "...Rest? At this hour? I have duties to attend to.",
+      "I just woke, father. I am not tired."
+    ];
+    showDialogue(lines[Math.floor(Math.random()*lines.length)], 3500);
+    return;
+  }
 
   const taskData={
     patrol:{
@@ -719,8 +772,8 @@ function orderPrince(task){
       stress:-5,hygiene:-20,hunger:-15
     },
     sleep:{
-      msg:"Understood. I will rest.",
-      ret:["He returns looking more rested.","He slept, but woke early again."],
+      msg: G.ci === 3 ? "...Yes. I will rest for the night." : "Understood. I will rest.",
+      ret: G.ci === 3 ? ["He rises with the dawn, looking steadier.","He slept through the night. He seems more himself."] : ["He returns looking more rested.","He slept, but woke early again."],
       stress:-15,hygiene:0,hunger:-5
     },
     delegate:{
@@ -821,7 +874,31 @@ function orderPrince(task){
       G.stress=Math.max(0,Math.min(100,G.stress+td.stress));
       G.hygiene=Math.max(0,Math.min(100,G.hygiene+td.hygiene));
       G.hunger=Math.max(0,Math.min(100,G.hunger+td.hunger));
-      advanceTime(2);
+
+      // Wash advances 1 cycle; sleep at night resets to next morning; others advance 2
+      let timeAmt;
+      if(task === "wash"){
+        timeAmt = 1;
+      } else if(task === "sleep" && G.ci === 3){
+        // night → skip straight to morning of the next day
+        G.ci = 0;
+        G.day++;
+        G.hunger = Math.min(100, G.hunger + 8);
+        G.stress = Math.min(100, G.stress + 5);
+        G.hygiene = Math.max(0, G.hygiene - 8);
+        if(G.day >= 7) G.corruption = Math.min(100, G.corruption + 3);
+        if(G.day > 12){ triggerEnding(); return; }
+        if(STORY[G.day] && G.ci === 0) showBanner(STORY[G.day].title, STORY[G.day].text);
+        if(G.day >= 7) document.getElementById('jr').style.display = 'flex';
+        scheduleLeave();
+        checkBadState();
+        checkConfrontationTrigger();
+        updateUI();
+        timeAmt = 0; // already handled above
+      } else {
+        timeAmt = 2;
+      }
+      if(timeAmt > 0) advanceTime(timeAmt);
     }
   }, 1000);
 }
@@ -918,8 +995,22 @@ function giveGift(type){
   updateUI();
 }
 
-// ------------------------------------------------------------------
-// IDLE LINES — only when truly idle
+// Returns a time-appropriate greeting from Dark Choco
+function getTimeGreeting(){
+  const greetings=[
+    // MORNING (ci=0)
+    ["Good morning, father.","You are up early, father.","...The castle is quiet this hour.","I trust you slept well, father."],
+    // AFTERNOON (ci=1)
+    ["Father. Is there something you need?","...You seem preoccupied, father.","The afternoon patrols went well.","Father. I am here."],
+    // EVENING (ci=2)
+    ["...It grows late, father.","Good evening, father.","The torches have been lit.","Is something troubling you, father?"],
+    // NIGHT (ci=3)
+    ["...You are still awake, father.","You should rest, father.","...It is late. What do you need?","The castle is secured for the night."]
+  ];
+  return greetings[G.ci][Math.floor(Math.random()*greetings[G.ci].length)];
+}
+
+  
 // ------------------------------------------------------------------
 setInterval(()=>{
   if(G.isBusy||G.awayState||G.headpatMode||G.inConfrontation) return;
@@ -1081,6 +1172,13 @@ function showBanner(title,text){
 }
 function closeBanner(){
   document.getElementById('sb2').classList.remove('open');
+	const music = document.getElementById('bgm');
+  if (music && music.paused) {
+    music.play().catch(e => console.log("Audio play blocked until interaction."));
+    music.volume = G.volume || 0.5; // Apply saved volume
+  }
+  // Show time-appropriate greeting after the banner closes
+  setTimeout(()=>showDialogue(getTimeGreeting(), 4000), 600);
   // Schedule chat only after banner is closed, with a comfortable gap
   setTimeout(scheduleChatEvent, 8000);
 }
@@ -1115,6 +1213,7 @@ function loadGame(){
     G=save.G;
     usedEvents=save.usedEvents||[];
     updateUI();
+    updateBackground();
     updateConditionSprite();
     return true;
   }catch(e){ return false; }
@@ -1131,11 +1230,23 @@ function showContinuePrompt(){
   const opts=document.getElementById('mopts');
   opts.innerHTML='';
   const cont=document.createElement('button'); cont.className='opt-btn'; cont.innerText="Continue";
-  cont.onclick=()=>{ loadGame(); modal.classList.remove('open'); };
+  cont.onclick=()=>{ loadGame(); modal.classList.remove('open'); setTimeout(()=>showDialogue(getTimeGreeting(),4000),600); };
+	const music = document.getElementById('bgm');
+    if (music) music.play();
   const newg=document.createElement('button'); newg.className='opt-btn'; newg.innerText="Start New";
   newg.onclick=()=>resetGame();
   opts.appendChild(cont); opts.appendChild(newg);
   modal.classList.add('open');
+}
+
+// ------------------------------------------------------------------
+// DYNAMIC BACKGROUND
+// ------------------------------------------------------------------
+function updateBackground(){
+  const gc = document.getElementById('gc');
+  gc.classList.remove('time-morning','time-afternoon','time-evening','time-night');
+  const classes = ['time-morning','time-afternoon','time-evening','time-night'];
+  gc.classList.add(classes[G.ci]);
 }
 
 // ------------------------------------------------------------------
@@ -1151,7 +1262,12 @@ function updateUI(){
   document.getElementById('jam-bar').style.width=G.corruption+'%';
   document.getElementById('stress-bar').style.background=G.stress>=70?'#6a0000':'#9e1b32';
   document.getElementById('hunger-bar').style.background=G.hunger>=80?'#c06010':'#4ead52';
+	if(G.volume !== undefined) {
+  document.getElementById('bgm').volume = G.volume;
+  document.getElementById('volume-slider').value = G.volume;
+}
   updateAwayVisual();
+  updateBackground();
   saveGame();
 }
 
