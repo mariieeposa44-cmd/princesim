@@ -501,6 +501,7 @@ let htimer=null;
 let headpatCount=0;
 let headpatTimeout=null;
 let lastPetTime=0;
+let taskInterval=null;
 
 // ------------------------------------------------------------------
 // DIALOGUE — FIX: "thought" class for away italics
@@ -903,13 +904,16 @@ function orderPrince(task){
   G.awayState=task;
   updateAwayVisual();
 
+  // Clear any leftover interval from a previous order
+  if(taskInterval) { clearInterval(taskInterval); taskInterval=null; }
+
   document.getElementById('td').style.display='block';
   document.getElementById('interrupt-btn').style.display='block';
 
   let t=Math.floor(20+Math.random()*15);
   document.getElementById('sec').innerText=t;
 
-  const iv=setInterval(()=>{
+  taskInterval=setInterval(()=>{
     // Pause countdown while a mid-action choice is being shown
     if(G._midEventPending) return;
 
@@ -922,7 +926,8 @@ function orderPrince(task){
     document.getElementById('sec').innerText=t;
 
     if(t<=0){
-      clearInterval(iv);
+      clearInterval(taskInterval);
+      taskInterval=null;
       G.isBusy=false;
       G.awayState=null;
       updateAwayVisual();
@@ -999,7 +1004,7 @@ function orderPrince(task){
         if(G.day >= 7) G.corruption = Math.min(100, G.corruption + 3);
         if(G.day > 12){ triggerEnding(); return; }
         if(STORY[G.day] && G.ci === 0) showBanner(STORY[G.day].title, STORY[G.day].text);
-        if(G.day >= 7) document.getElementById('jr').style.display = 'flex';
+        if(G.day >= 5){ document.getElementById('jr').style.display='flex'; document.getElementById('jr').style.opacity=G.corruption>=5?'1':'0.15'; }
         scheduleLeave();
         checkBadState();
         checkConfrontationTrigger();
@@ -1093,6 +1098,7 @@ function endArcheryMinigame(score) {
 }
 function interruptAction(){
   if(!G.isBusy) return;
+  if(taskInterval){ clearInterval(taskInterval); taskInterval=null; }
   G.isBusy=false;
   G.awayState=null;
   G._midEventPending=false;
@@ -1237,22 +1243,34 @@ function updateCorruptionEffects(){
     return;
   }
 
-  // Shadow grows from invisible → large dark pool as corruption rises
+  // Shadow grows from invisible → large dark pool
   const intensity=Math.min(c/100,1);
   const r=Math.round(120*intensity);
-  const alpha=(0.15+0.6*intensity).toFixed(2);
-  const w=Math.round(400+400*intensity);
-  const h=Math.round(60+160*intensity);
+  const alpha=(0.12+0.65*intensity).toFixed(2);
+  const w=Math.round(350+450*intensity);
+  const h=Math.round(50+170*intensity);
   shadow.style.width=w+'px';
   shadow.style.height=h+'px';
   shadow.style.background=`radial-gradient(ellipse at center,rgba(${r},0,0,${alpha}) 0%,rgba(0,0,0,0) 70%)`;
-  if(c>=30) shadow.classList.add('pulsing');
+  // Pulsing starts at 15% (was 30%)
+  if(c>=15) shadow.classList.add('pulsing');
   else shadow.classList.remove('pulsing');
 
-  // Flicker: at corruption >40, rarely flash s-angry for 100ms
-  if(c>=40 && !G.isBusy && !G.awayState && !G.headpatMode && !G.inConfrontation){
+  // Dialogue box gets a faint red border tint at 25%+
+  const db=document.getElementById('db');
+  if(db && !db.classList.contains('glitch')){
+    if(c>=25){
+      const tint=Math.min((c-25)/75,1);
+      db.style.borderColor=`rgba(${Math.round(26+100*tint)},${Math.round(26-20*tint)},${Math.round(10-8*tint)},1)`;
+    } else {
+      db.style.borderColor='';
+    }
+  }
+
+  // Flicker: starts at 20% (was 40%), scales up
+  if(c>=20 && !G.isBusy && !G.awayState && !G.headpatMode && !G.inConfrontation){
     if(corruptFlickerTimer) return;
-    const flickerChance=0.001+(c/100)*0.004; // 0.1%–0.5% per tick
+    const flickerChance=0.002+(c/100)*0.006;
     if(Math.random()<flickerChance){
       const angry=document.getElementById('s-angry');
       angry.style.opacity='1';
@@ -1276,8 +1294,8 @@ setInterval(()=>{
 
   const c=G.corruption;
 
-  // >60%: 5% chance of glitched red dialogue
-  if(c>60 && Math.random()<0.05){
+  // >35%: 3% chance of full glitched red dialogue (was >60%, 5%)
+  if(c>35 && Math.random()<0.03){
     const line=CORRUPT_GLITCH[Math.floor(Math.random()*CORRUPT_GLITCH.length)];
     const d=document.getElementById('db');
     d.classList.add('glitch');
@@ -1286,10 +1304,21 @@ setInterval(()=>{
     return;
   }
 
-  // >10%: replace some idle lines with corruption-flavoured ones
+  // >15%: corruption-flavoured idle lines mix in, scaling with corruption
+  // >5%: very subtle early whispers
   let pool;
-  if(c>10 && Math.random()<(c/100)*0.7){
+  const roll=Math.random();
+  if(c>15 && roll<(c/100)*0.75){
     pool=CORRUPT_IDLE;
+  } else if(c>5 && roll<(c/100)*0.4){
+    // Early low-level unease — still reads as normal but something is off
+    pool=[
+      "...He pauses for a moment, hand on his chest.",
+      "Something crosses his face. Gone before you can name it.",
+      "He exhales slowly. His eyes are distant.",
+      "...He almost said something. He didn't.",
+      "He stares south for just a second too long.",
+    ];
   } else {
     pool=[
       "...He adjusts his grip on the sword.",
@@ -1409,10 +1438,19 @@ function advanceTime(amt){
   G.hunger=Math.min(100,G.hunger+8);
   G.stress=Math.min(100,G.stress+5);
   G.hygiene=Math.max(0,G.hygiene-8);
-  if(G.day>=7) G.corruption=Math.min(100,G.corruption+3);
+  if(G.day>=3){
+    // The sword whispers from day 3. Bond suppresses it; neglect amplifies it.
+    // Base tick: +1 day3-6, +2 day7+
+    const baseTick = G.day >= 7 ? 2 : 1;
+    const bondSuppression = Math.max(0, (G.bond - 50) / 10) * 0.4; // up to -2 at bond 100
+    const neglectBonus = G.neglect >= 5 ? 0.5 : 0;
+    const tick = Math.max(0.2, baseTick - bondSuppression + neglectBonus);
+    G.corruption = Math.min(100, G.corruption + tick);
+  }
   if(G.day>12){ triggerEnding(); return; }
   if(STORY[G.day]&&G.ci===0) showBanner(STORY[G.day].title,STORY[G.day].text);
-  if(G.day>=7) document.getElementById('jr').style.display='flex';
+  if(G.day>=5) document.getElementById('jr').style.display='flex';
+  if(G.day>=5) document.getElementById('jr').style.opacity= G.corruption>=5 ? '1' : '0.15';
   if(G.ci===0) scheduleLeave();
   checkBadState();
   checkConfrontationTrigger();
@@ -1422,7 +1460,10 @@ function advanceTime(amt){
 function checkBadState(){
   if(G.stress>=90) showDialogue("Father... I am struggling.", 4000);
   if(G.hunger>=95) showDialogue("...I am hungry.", 3000);
-  if(G.corruption>=80&&G.day>=7) showDialogue("...I will seek greater strength up at Bad Lands. I can feel it.", 4500);
+  // Corruption whispers at progressively more alarming thresholds
+  if(G.corruption>=80) showDialogue("...I will seek greater strength up at Bad Lands. I can feel it.", 4500);
+  else if(G.corruption>=50 && Math.random()<0.5) showDialogue("...There is something at the Bad Lands. I keep thinking about it.", 4000);
+  else if(G.corruption>=25 && Math.random()<0.35) showDialogue("...I had a strange dream again.", 3500);
 }
 
 function scheduleLeave(){
