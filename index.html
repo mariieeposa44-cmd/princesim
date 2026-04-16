@@ -196,6 +196,35 @@
   /* night dim overlay on sprite */
   #night-dim{position:absolute;inset:0;pointer-events:none;background:rgba(10,5,40,0);z-index:6;transition:background .8s ease}
   #gc.time-night #night-dim{background:rgba(10,5,40,0.45)}
+
+  /* Corruption shadow layer behind Prince */
+  #corruption-shadow{
+    position:absolute;bottom:0;left:50%;
+    transform:translateX(-50%);
+    width:600px;height:120px;
+    background:radial-gradient(ellipse at center,rgba(80,0,0,0) 0%,rgba(80,0,0,0) 100%);
+    border-radius:50%;pointer-events:none;z-index:4;
+    transition:background 1.5s ease,width 1.5s ease,height 1.5s ease;
+    filter:blur(18px);
+  }
+  @keyframes shadowPulse{
+    0%,100%{transform:translateX(-50%) scaleX(1) scaleY(1);opacity:1}
+    50%{transform:translateX(-50%) scaleX(1.1) scaleY(1.2);opacity:0.65}
+  }
+  #corruption-shadow.pulsing{animation:shadowPulse 2.8s ease-in-out infinite}
+
+  /* Glitched dialogue */
+  #db.glitch{
+    color:#cc0000 !important;border-color:#8a0000 !important;
+    background:#1a0000 !important;
+    text-shadow:2px 0 3px #ff000066,-2px 0 3px #ff000033;
+    animation:glitchShake 0.12s steps(2) infinite;
+  }
+  @keyframes glitchShake{
+    0%{transform:translateX(calc(-50% - 2px))}
+    50%{transform:translateX(calc(-50% + 2px))}
+    100%{transform:translateX(-50%)}
+  }
 /* Snow Container and Particle Style */
 .snow-container {
   position: absolute;
@@ -262,6 +291,8 @@
     <div class="sr"><span class="si">🧼</span><div class="bc"><div id="hygiene-bar" class="bar hygiene" style="width:100%"></div><span class="bl">hygiene</span></div></div>
     <div id="jr" class="sr"><span class="si">⚔️</span><div class="bc"><div id="jam-bar" class="bar jam" style="width:0%"></div><span class="bl">???</span></div></div>
   </div>
+
+  <div id="corruption-shadow"></div>
 
   <div id="pa">
     <div class="bc2" id="sc2" onmousemove="handlePet(event)" onclick="petPrince()">
@@ -1173,20 +1204,105 @@ function getTimeGreeting(){
 
   
 // ------------------------------------------------------------------
+// CORRUPTION EFFECTS
+// ------------------------------------------------------------------
+const CORRUPT_IDLE=[
+  "...He seems distracted by something unseen.",
+  "His eyes drift south. Toward the Bad Lands.",
+  "...He is searching for something.",
+  "He murmurs something under his breath.",
+  "...His hand moves to where a sword would hang.",
+  "He stares at the wall for too long.",
+  "Something has his attention. Not you."
+];
+const CORRUPT_GLITCH=[
+  "T̷h̵e̵ ̸s̵w̸o̶r̸d̷.̷.̵.̸ ̷i̸t̶ ̸c̷a̶l̸l̷s̵.̶",
+  "...i̵̢͝t̷̰̓ ̷̗̈s̴̱͝h̴̲̓o̶̟͘ů̷͖ĺ̸͚d̷̰̿ ̸̬̀b̷̫͝e̷̳̓ ̵̰̓m̷̤͘i̷̤͆n̶̟͆e̶̬͘",
+  "F̷a̶t̸h̵e̸r̴.̷ ̷y̶o̶u̵ ̷c̸a̷n̸n̸o̷t̵ ̶s̸t̷o̶p̷ ̸t̸h̵i̸s̷.",
+  "...t̵̗͝h̶̪̾e̸̡̛ ̷̼̆p̶͙̂o̶̮̓w̷̻͆e̷̘͑r̷̻̾.̸̹̌.̵̨̓.̷͖̀ ̴̝̈i̸̺͆t̶̡̽ ̵̗̀s̶͓̔ȅ̶̤ĕ̴̹ŝ̷͜ ̵̠̕m̴̼̋ȅ̷̖",
+  "...Ṡ̸̨t̶̤̀r̴͔͝a̷̳̕ẇ̴͖b̷̹̉ě̸͖r̶͔̀r̷͉͝ÿ̴̡ ̶̨͘J̸͔͒a̷̠͊m̷̟̽.̶̞̚",
+  "I̵̜͠ ̷̫̓k̸͙̔n̷̛͖e̷͕͗w̶̳̆ ̷̱͝y̷̦͐o̶̩͑u̵̬͘ ̶̰̉w̵̱̄o̸͚̔u̷͙̾l̷̰̈d̴͓̊ ̷̙̎n̵͖͠o̵̬͂t̸̰̒ ̶̬͐ŭ̵͕n̶̦̏d̷̮͌ȅ̷̛͖r̷̝̒s̸̞̈t̷̯͠a̴̫͗n̸͎̉d̸͎̿."
+];
+
+let corruptFlickerTimer=null;
+
+function updateCorruptionEffects(){
+  const c=G.corruption;
+  const shadow=document.getElementById('corruption-shadow');
+  if(!shadow) return;
+
+  if(c<=0){
+    shadow.style.background='radial-gradient(ellipse at center,rgba(80,0,0,0) 0%,rgba(80,0,0,0) 100%)';
+    shadow.classList.remove('pulsing');
+    return;
+  }
+
+  // Shadow grows from invisible → large dark pool as corruption rises
+  const intensity=Math.min(c/100,1);
+  const r=Math.round(120*intensity);
+  const alpha=(0.15+0.6*intensity).toFixed(2);
+  const w=Math.round(400+400*intensity);
+  const h=Math.round(60+160*intensity);
+  shadow.style.width=w+'px';
+  shadow.style.height=h+'px';
+  shadow.style.background=`radial-gradient(ellipse at center,rgba(${r},0,0,${alpha}) 0%,rgba(0,0,0,0) 70%)`;
+  if(c>=30) shadow.classList.add('pulsing');
+  else shadow.classList.remove('pulsing');
+
+  // Flicker: at corruption >40, rarely flash s-angry for 100ms
+  if(c>=40 && !G.isBusy && !G.awayState && !G.headpatMode && !G.inConfrontation){
+    if(corruptFlickerTimer) return;
+    const flickerChance=0.001+(c/100)*0.004; // 0.1%–0.5% per tick
+    if(Math.random()<flickerChance){
+      const angry=document.getElementById('s-angry');
+      angry.style.opacity='1';
+      corruptFlickerTimer=setTimeout(()=>{
+        angry.style.opacity='0';
+        corruptFlickerTimer=null;
+      }, 100);
+    }
+  }
+}
+
+// Corruption flicker check runs on a fast loop
+setInterval(updateCorruptionEffects, 400);
+
+// ------------------------------------------------------------------
+// IDLE LINES — corruption-aware
+// ------------------------------------------------------------------
 setInterval(()=>{
   if(G.isBusy||G.awayState||G.headpatMode||G.inConfrontation) return;
   if(Math.random()>0.18) return;
-  const idleLines=[
-    "...He adjusts his grip on the sword.",
-    "He glances at you briefly.",
-    "He seems lost in thought.",
-    "He stands at ease, waiting.",
-    "...The wind moves his hair.",
-    "He exhales slowly.",
-    "He watches the door.",
-    "...His jaw tightens for a moment."
-  ];
-  showDialogue(idleLines[Math.floor(Math.random()*idleLines.length)], 2500, false, true);
+
+  const c=G.corruption;
+
+  // >60%: 5% chance of glitched red dialogue
+  if(c>60 && Math.random()<0.05){
+    const line=CORRUPT_GLITCH[Math.floor(Math.random()*CORRUPT_GLITCH.length)];
+    const d=document.getElementById('db');
+    d.classList.add('glitch');
+    showDialogue(line, 3000, false, false);
+    setTimeout(()=>d.classList.remove('glitch'), 3200);
+    return;
+  }
+
+  // >10%: replace some idle lines with corruption-flavoured ones
+  let pool;
+  if(c>10 && Math.random()<(c/100)*0.7){
+    pool=CORRUPT_IDLE;
+  } else {
+    pool=[
+      "...He adjusts his grip on the sword.",
+      "He glances at you briefly.",
+      "He seems lost in thought.",
+      "He stands at ease, waiting.",
+      "...The wind moves his hair.",
+      "He exhales slowly.",
+      "He watches the door.",
+      "...His jaw tightens for a moment."
+    ];
+  }
+  showDialogue(pool[Math.floor(Math.random()*pool.length)], 2500, false, true);
 }, 12000);
 
 // ------------------------------------------------------------------
@@ -1474,6 +1590,7 @@ function updateUI(){
   }
   updateAwayVisual();
   updateBackground();
+  updateCorruptionEffects();
   saveGame();
 }
 
