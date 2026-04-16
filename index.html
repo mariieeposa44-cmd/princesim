@@ -62,7 +62,25 @@
     color:#4a4a7a;
     font-style:italic;
   }
-
+#minigame-ui {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(255,255,255,0.3); /* Slight tint to focus on game */
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+#ca-sprite {
+  width: 300px; /* Adjust based on your image size */
+  height: auto;
+  transition: transform 0.1s;
+}
+	@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
   /* chat bubble */
   #cb{
     position:absolute;
@@ -178,7 +196,34 @@
   /* night dim overlay on sprite */
   #night-dim{position:absolute;inset:0;pointer-events:none;background:rgba(10,5,40,0);z-index:6;transition:background .8s ease}
   #gc.time-night #night-dim{background:rgba(10,5,40,0.45)}
+/* Snow Container and Particle Style */
+.snow-container {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none; /* So you can still click the Prince */
+  z-index: 5;
+  display: none; /* Hidden by default */
+}
 
+/* Show snow only when these classes are present on #gc */
+#gc.time-morning .snow-container,
+#gc.time-afternoon .snow-container {
+  display: block;
+}
+
+.snowflake {
+  position: absolute;
+  top: -10px;
+  background: white;
+  border-radius: 50%;
+  opacity: 0.8;
+  animation: fall linear infinite;
+}
+
+@keyframes fall {
+  to { transform: translateY(620px) translateX(20px); }
+}
   #interrupt-btn{
     position:absolute;
     bottom:14px;
@@ -201,11 +246,15 @@
 <body>
 <audio id="bgm" loop><source src="WORLD_OST.mp3" type="audio/mpeg"></audio>
 <div id="gc">
+	<div id="snow-box" class="snow-container"></div>
   <div id="night-dim"></div>
   <div id="ts"><span id="ti">☀️</span><span id="cd">MORNING</span></div>
   <div id="day-disp">Day <span id="dd">1</span> / 12</div>
   <div id="exit-headpat" onclick="exitHeadpat()">✖ End headpat</div>
   <div id="vignette"></div>
+	<div id="minigame-ui">
+  <img id="ca-sprite" src="CARAMEL_MINIGAME_START.png" alt="Training">
+</div>
 
   <div id="sp">
     <div class="sr"><span class="si">😨</span><div class="bc"><div id="stress-bar" class="bar stress" style="width:20%"></div><span class="bl">stress</span></div></div>
@@ -348,6 +397,7 @@ let G={
   confrontationTriggered:false,
   inConfrontation:false,
   confrontStep:0,
+  _midEventPending:false,
 	volume: 0.5,
 };
 
@@ -475,6 +525,7 @@ const AWAY_THOUGHTS={
 // so the OLD code never ran. Fixed: only skip if awayState is null.
 setInterval(()=>{
   if(!G.awayState) return;                 // not away → skip
+  if(G.isBusy && !G.awayState) return;    // minigame running → skip
   if(G.inConfrontation) return;            // confrontation → skip
   if(Math.random() > 0.4) return;          // 40% chance each tick
 
@@ -750,6 +801,31 @@ function adjustVolume(val) {
     saveGame(); //
   }
 }
+function initSnow() {
+  const container = document.getElementById('snow-box');
+  const count = 50; // Number of snowflakes
+
+  for (let i = 0; i < count; i++) {
+    const flake = document.createElement('div');
+    flake.className = 'snowflake';
+    
+    // Randomize size, position, and speed
+    const size = Math.random() * 4 + 2 + 'px';
+    flake.style.width = size;
+    flake.style.height = size;
+    flake.style.left = Math.random() * 100 + '%';
+    flake.style.animationDuration = Math.random() * 3 + 4 + 's'; 
+    flake.style.animationDelay = Math.random() * 5 + 's';
+    flake.style.filter = "blur(1px)";
+    
+    container.appendChild(flake);
+  }
+}
+
+// Replace your empty window.onload at the bottom with this:
+window._initSnowOnly = function() {
+  initSnow();
+};
 function orderPrince(task){
   if(G.isBusy) return;
   closeAllMenus();
@@ -803,6 +879,9 @@ function orderPrince(task){
   document.getElementById('sec').innerText=t;
 
   const iv=setInterval(()=>{
+    // Pause countdown while a mid-action choice is being shown
+    if(G._midEventPending) return;
+
     // mid-action event hook
     if((t===15||t===8) && Math.random()<0.45){
       triggerMidActionEvent(task);
@@ -902,11 +981,91 @@ function orderPrince(task){
     }
   }, 1000);
 }
+function startArcheryMinigame() {
+  if (G.isBusy) return;
+  G.isBusy = true;
+  
+  const ui = document.getElementById('minigame-ui');
+  const sprite = document.getElementById('ca-sprite');
+  const container = document.getElementById('gc');
+  
+  ui.style.display = 'flex';
+  sprite.src = "CARAMEL_MINIGAME_START.png"; // Initial state
+  
+  let score = 0;
+  let timeLeft = 10;
 
+  const timerLabel = document.createElement('div');
+  timerLabel.style = "position:absolute; top:20px; left:50%; transform:translateX(-50%); font-size:3rem; color:#b22222; z-index:110; font-weight:bold; text-shadow: 2px 2px #fff;";
+  ui.appendChild(timerLabel);
+
+  const gameInterval = setInterval(() => {
+    timeLeft--;
+    timerLabel.innerText = timeLeft + "s";
+    
+    // Spawn Target
+    const target = document.createElement('div');
+    target.innerText = "🎯";
+    target.style = `position:absolute; left:${Math.random()*70+15}%; top:${Math.random()*50+20}%; cursor:pointer; font-size:3.5rem; z-index:111; user-select:none;`;
+    ui.appendChild(target);
+
+    target.onclick = () => {
+      score++;
+      sprite.src = "CARAMEL_MINIGAME_HIT.png"; // Change to HIT sprite
+      target.remove();
+      // Snap back to Neutral after a short delay
+      setTimeout(() => { if(timeLeft > 0) sprite.src = "CARAMEL_MINIGAME_NEUTRAL.png"; }, 300);
+    };
+
+    // If target expires without click
+    setTimeout(() => { 
+      if(target.parentNode) {
+        target.remove();
+        sprite.src = "CARAMEL_MINIGAME_MISS.png"; // Change to MISS sprite
+      }
+    }, 800);
+
+    if (timeLeft <= 0) {
+      clearInterval(gameInterval);
+      timerLabel.remove();
+      ui.style.display = 'none';
+      endArcheryMinigame(score);
+    }
+  }, 1000);
+}
+
+function endArcheryMinigame(score) {
+  G.isBusy = false;
+  const ui = document.getElementById('minigame-ui');
+
+  // Hide the overlay first so dialogue is never obscured by the CA sprite
+  ui.style.display = 'none';
+
+  let msg;
+  if (score >= 5) {
+    const wins = [
+      "Caramel Arrow: 'Your focus is sharpening, Prince!'",
+      "Caramel Arrow: 'A fine display of the Cacao combat style.'",
+      "Caramel Arrow: 'I am honored to train with you.'"
+    ];
+    msg = wins[Math.floor(Math.random()*wins.length)];
+    G.bond += 10;
+    G.stress = Math.max(0, G.stress - 15);
+  } else {
+    msg = "Caramel Arrow: 'Let us try again another time.'";
+    G.bond += 2;
+  }
+
+  // Small delay so the hide transition settles before dialogue appears
+  setTimeout(() => showDialogue(msg, 4000), 150);
+  updateUI();
+}
 function interruptAction(){
   if(!G.isBusy) return;
   G.isBusy=false;
   G.awayState=null;
+  G._midEventPending=false;
+  document.getElementById('choices').innerHTML='';
   updateAwayVisual();
   document.getElementById('td').style.display='none';
   document.getElementById('interrupt-btn').style.display='none';
@@ -927,7 +1086,9 @@ function triggerMidActionEvent(task){
   const pool=events[task];
   if(!pool) return;
   const e=pool[Math.floor(Math.random()*pool.length)];
-  G.isBusy=false;
+  // Pause the countdown by marking a mid-event is pending; keep isBusy=true
+  // so the interval won't complete while the player chooses
+  G._midEventPending = true;
   const container=document.getElementById('choices');
   container.innerHTML='';
   showDialogue(e.text, 0, true);
@@ -940,7 +1101,7 @@ function triggerMidActionEvent(task){
       if(choice.bond) G.bond=Math.max(0,Math.min(100,G.bond+choice.bond));
       container.innerHTML='';
       document.getElementById('db').classList.remove('show','thought');
-      G.isBusy=false;
+      G._midEventPending = false;
       updateUI();
     };
     container.appendChild(btn);
@@ -1099,7 +1260,30 @@ function endConfrontation(){
   document.getElementById('s-frustrated').style.opacity="0";
   showDialogue("...I understand. I will try to do better.", 4000);
 }
+function checkCaramelSpawn() {
+  // 1. Remove any existing trigger first to avoid duplicates
+  const existing = document.getElementById('ca-event-trigger');
+  if (existing) existing.remove();
 
+  // 2. Set the spawn chance (e.g., 30% chance she appears)
+  // We also check if the Prince is "Away" or "Busy" so she doesn't pop up while he's gone
+  if (Math.random() < 0.3 && !G.isAway && !G.isBusy) {
+    const caPrompt = document.createElement('div');
+    caPrompt.id = "ca-event-trigger";
+    caPrompt.style = "position:absolute; bottom:100px; right:60px; text-align:center; z-index:30; cursor:pointer; animation: bounce 2s infinite;";
+    caPrompt.innerHTML = `
+      <div style="font-size:3.5rem; filter: drop-shadow(2px 2px 0px #fff);">🏹</div>
+      <div style="background:#1a1a1a; color:#fff; padding:2px 10px; border-radius:20px; font-size:0.9rem; font-weight:bold; border:2px solid #fff;">Spar with CA</div>
+    `;
+    
+    caPrompt.onclick = function() {
+      this.remove();
+      startArcheryMinigame();
+    };
+    
+    document.getElementById('gc').appendChild(caPrompt);
+  }
+}
 // ------------------------------------------------------------------
 // TIME & STATE
 // ------------------------------------------------------------------
@@ -1177,6 +1361,26 @@ function closeBanner(){
     music.play().catch(e => console.log("Audio play blocked until interaction."));
     music.volume = G.volume || 0.5; // Apply saved volume
   }
+	// --- CARAMEL ARROW VISIT TRIGGER ---
+  // Guaranteed on Day 3; 30% chance on any later day (one prompt at a time)
+  if(G.day >= 3 && !document.getElementById('ca-event-trigger')) {
+    const guaranteed = G.day === 3;
+    if(guaranteed || Math.random() < 0.3) {
+      const caPrompt = document.createElement('div');
+      caPrompt.id = "ca-event-trigger";
+      caPrompt.style = "position:absolute; bottom:100px; right:60px; text-align:center; z-index:30; cursor:pointer; animation: bounce 2s infinite;";
+      caPrompt.innerHTML = `
+        <div style="font-size:3.5rem; filter: drop-shadow(2px 2px 0px #fff);">🏹</div>
+        <div style="background:#1a1a1a; color:#fff; padding:2px 10px; border-radius:20px; font-size:0.9rem; font-weight:bold; border:2px solid #fff;">Train with CA</div>
+      `;
+      caPrompt.onclick = function() {
+        this.remove();
+        startArcheryMinigame();
+      };
+      document.getElementById('gc').appendChild(caPrompt);
+    }
+  }
+  // ------------------------------------
   // Show time-appropriate greeting after the banner closes
   setTimeout(()=>showDialogue(getTimeGreeting(), 4000), 600);
   // Schedule chat only after banner is closed, with a comfortable gap
@@ -1262,10 +1466,12 @@ function updateUI(){
   document.getElementById('jam-bar').style.width=G.corruption+'%';
   document.getElementById('stress-bar').style.background=G.stress>=70?'#6a0000':'#9e1b32';
   document.getElementById('hunger-bar').style.background=G.hunger>=80?'#c06010':'#4ead52';
-	if(G.volume !== undefined) {
-  document.getElementById('bgm').volume = G.volume;
-  document.getElementById('volume-slider').value = G.volume;
-}
+  if(G.volume !== undefined) {
+    const bgm = document.getElementById('bgm');
+    const vol = document.getElementById('volume-slider');
+    if(bgm) bgm.volume = G.volume;
+    if(vol) vol.value = G.volume;
+  }
   updateAwayVisual();
   updateBackground();
   saveGame();
@@ -1275,6 +1481,7 @@ function updateUI(){
 // INIT
 // ------------------------------------------------------------------
 window.onload=function(){
+  initSnow();
   const hasSave=localStorage.getItem("princeSave");
   if(hasSave) showContinuePrompt();
   else {
