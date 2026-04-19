@@ -1001,7 +1001,13 @@ function orderPrince(task){
         G.hunger = Math.min(100, G.hunger + 8);
         G.stress = Math.min(100, G.stress + 5);
         G.hygiene = Math.max(0, G.hygiene - 8);
-        if(G.day >= 7) G.corruption = Math.min(100, G.corruption + 3);
+        if(G.day >= 3){
+          const baseTick = G.day >= 7 ? 2 : 1;
+          const bondSuppression = Math.max(0, (G.bond - 50) / 10) * 0.4;
+          const neglectBonus = G.neglect >= 5 ? 0.5 : 0;
+          const tick = Math.max(0.2, baseTick - bondSuppression + neglectBonus);
+          G.corruption = Math.min(100, G.corruption + tick);
+        }
         if(G.day > 12){ triggerEnding(); return; }
         if(STORY[G.day] && G.ci === 0) showBanner(STORY[G.day].title, STORY[G.day].text);
         if(G.day >= 5){ document.getElementById('jr').style.display='flex'; document.getElementById('jr').style.opacity=G.corruption>=5?'1':'0.15'; }
@@ -1430,6 +1436,27 @@ function checkCaramelSpawn() {
   }
 }
 // ------------------------------------------------------------------
+// REAL-TIME CORRUPTION TICK
+// Runs every 20s regardless of orders — the sword never stops whispering
+// ------------------------------------------------------------------
+setInterval(()=>{
+  if(G.day < 3 || G.day > 12) return;
+  const baseTick = G.day >= 7 ? 1.5 : 0.8;
+  const bondSuppression = Math.max(0, (G.bond - 50) / 10) * 0.3;
+  const neglectBonus = G.neglect >= 5 ? 0.4 : 0;
+  const tick = Math.max(0.15, baseTick - bondSuppression + neglectBonus);
+  G.corruption = Math.min(100, G.corruption + tick);
+  // Update bar width and visibility live
+  document.getElementById('jam-bar').style.width = G.corruption + '%';
+  if(G.day >= 5){
+    const jr = document.getElementById('jr');
+    jr.style.display = 'flex';
+    jr.style.opacity = G.corruption >= 5 ? '1' : '0.15';
+  }
+  updateCorruptionEffects();
+}, 20000);
+
+// ------------------------------------------------------------------
 // TIME & STATE
 // ------------------------------------------------------------------
 function advanceTime(amt){
@@ -1449,8 +1476,6 @@ function advanceTime(amt){
   }
   if(G.day>12){ triggerEnding(); return; }
   if(STORY[G.day]&&G.ci===0) showBanner(STORY[G.day].title,STORY[G.day].text);
-  if(G.day>=5) document.getElementById('jr').style.display='flex';
-  if(G.day>=5) document.getElementById('jr').style.opacity= G.corruption>=5 ? '1' : '0.15';
   if(G.ci===0) scheduleLeave();
   checkBadState();
   checkConfrontationTrigger();
@@ -1623,6 +1648,11 @@ function updateUI(){
   document.getElementById('jam-bar').style.width=G.corruption+'%';
   document.getElementById('stress-bar').style.background=G.stress>=70?'#6a0000':'#9e1b32';
   document.getElementById('hunger-bar').style.background=G.hunger>=80?'#c06010':'#4ead52';
+  if(G.day>=5){
+    const jr=document.getElementById('jr');
+    jr.style.display='flex';
+    jr.style.opacity=G.corruption>=5?'1':'0.15';
+  }
   if(G.volume !== undefined) {
     const bgm = document.getElementById('bgm');
     const vol = document.getElementById('volume-slider');
